@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidora - Video Sharing App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF5A5F;
+            --secondary: #00A699;
+            --dark: #222222;
+            --light: #F7F7F7;
+            --light-gray: #E8E8E8;
+            --medium-gray: #AAAAAA;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            line-height: 1.6;
+        }
+        
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 65px;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .navbar a {
+            color: var(--medium-gray);
+            transition: color 0.3s;
+        }
+        
+        .navbar a.active {
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ff4045;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #009085;
+        }
+        
+        .thumbnail {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .thumbnail img {
+            transition: transform 0.3s;
+        }
+        
+        .thumbnail:hover img {
+            transform: scale(1.05);
+        }
+        
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .price-tag {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px); /* Slightly more lift */
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background-color: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--secondary);
+            border-radius: 5px;
+        }
+        
+        .avatar {
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .notification {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+            background-color: white;
+        }
+        
+        .collection {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .collection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+            color: white;
+        }
+        
+        .search-bar {
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal {
+            width: 90%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 90vh;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards; /* Apply to screens */
+        }
+
+        /* Button press animation */
+        button:active, .btn-primary:active, .btn-secondary:active {
+            transform: scale(0.97);
+            transition: transform 0.1s ease-out;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background-color: rgba(255,90,95,0.05);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--secondary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .tab-bar {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab-bar .tab {
+            padding: 10px 16px;
+            white-space: nowrap;
+            color: var(--medium-gray);
+            position: relative;
+        }
+        
+        .tab-bar .tab.active {
+            color: var(--primary);
+        }
+        
+        .tab-bar .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            right: 10px;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .toggle-button-group {
+            display: flex;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .toggle-button {
+            flex: 1;
+            padding: 8px 12px;
+            text-align: center;
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .toggle-button.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 30px 0 15px;
+            color: var(--dark);
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+        
+        /* For PDF continuous view */
+        .screen-separator {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--medium-gray), transparent);
+            margin: 40px 0;
+        }
+        
+        /* Analytics styles */
+        .analytics-card {
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .analytics-chart {
+            width: 100%;
+            height: 200px;
+            background-color: var(--light);
+            border-radius: 8px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 8%;
+            background-color: var(--secondary);
+            border-radius: 3px 3px 0 0;
+            transition: height 0.5s ease;
+        }
+        
+        .chart-line {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .chart-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .chart-line-path {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+            top: 50%;
+            opacity: 0.5;
+        }
+        
+        /* Tablet styles */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+            }
+            
+            .sidebar {
+                width: 250px;
+                height: 100vh;
+                position: fixed;
+                top: 0;
+                left: 0;
+                background-color: white;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+                padding: 20px 0;
+                display: flex;
+                flex-direction: column;
+                z-index: 100;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+            
+            .screen {
+                padding-bottom: 0;
+            }
+            
+            .navbar {
+                display: none;
+            }
+            
+            .sidebar-logo {
+                padding: 0 20px 20px;
+                border-bottom: 1px solid var(--light-gray);
+                margin-bottom: 20px;
+            }
+            
+            .sidebar-menu {
+                flex: 1;
+            }
+            
+            .sidebar-menu a {
+                display: flex;
+                align-items: center;
+                padding: 12px 20px;
+                color: var(--dark);
+                transition: all 0.3s;
+            }
+            
+            .sidebar-menu a:hover {
+                background-color: var(--light);
+            }
+            
+            .sidebar-menu a.active {
+                border-left: 3px solid var(--primary);
+                background-color: var(--light);
+                color: var(--primary);
+            }
+            
+            .sidebar-menu i {
+                width: 24px;
+                text-align: center;
+                margin-right: 12px;
+            }
+            
+            .sidebar-footer {
+                padding: 20px;
+                border-top: 1px solid var(--light-gray);
+            }
+            
+            .user-menu {
+                display: flex;
+                align-items: center;
+            }
+            
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                background-color: var(--light-gray);
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+        }
+        
+        /* For mobile view */
+        @media (max-width: 767px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        
+        /* Drag and Drop Styles */
+        .drag-item {
+            cursor: move;
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .drag-container {
+            min-height: 100px;
+            padding: 10px;
+            background-color: var(--light);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+            border: 2px dashed var(--primary);
+        }
+        
+        .drag-over {
+            background-color: rgba(0,166,153,0.1);
+        }
+
+        /* Video Player Modal Styles */
+        #video-player-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 200;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        #video-player-modal {
+            background-color: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px; /* Adjust as needed */
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .video-placeholder {
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            position: relative; /* Keep relative for positioning context */
+            overflow: hidden; /* Hide anything spilling out */
+        }
+         /* Removed icon style as icon is replaced */
+         /* .video-placeholder i {
+             color: rgba(255, 255, 255, 0.5);
+             font-size: 4rem;
+         }
+
+    </style>
+</head>
+<body class="relative">
+    <!-- TABLET SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1 class="text-2xl font-bold text-primary flex items-center">
+                <i class="fas fa-play-circle mr-2" style="color: var(--primary)"></i>
+                Vidora
+            </h1>
+        </div>
+        <div class="sidebar-menu flex-1">
+            <a href="#" class="active" onclick="showScreen('home-screen'); return false;">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#" onclick="showScreen('search-screen'); return false;">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </a>
+            <a href="#" onclick="showScreen('upload-screen'); return false;">
+                <i class="fas fa-plus-square"></i>
+                <span>Upload</span>
+            </a>
+            <a href="#" onclick="showScreen('earnings-screen'); return false;">
+                <i class="fas fa-wallet"></i>
+                <span>Earnings</span>
+            </a>
+            <a href="#" onclick="showScreen('profile-screen'); return false;">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="#" onclick="showScreen('collections-screen'); return false;">
+                <i class="fas fa-layer-group"></i>
+                <span>Collections</span>
+            </a>
+            <a href="#" onclick="showScreen('analytics-screen'); return false;">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" onclick="showScreen('notifications-screen'); return false;">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar"></div>
+                <div>
+                    <p class="text-sm font-medium">John Smith</p>
+                    <p class="text-xs text-gray-500">Creator</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- HOME SCREEN -->
+        <section id="home-screen" class="screen active fade-in">
+            <div class="header px-4 py-3 flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-primary flex items-center">
+                    <i class="fas fa-play-circle mr-2" style="color: var(--primary)"></i>
+                    Vidora
+                </h1>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2" onclick="showScreen('notifications-screen')">
+                        <i class="fas fa-bell text-xl relative">
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+                        </i>
+                    </button>
+                    <button class="p-2" onclick="showScreen('search-screen')">
+                        <i class="fas fa-search text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tab-bar border-b border-gray-200 bg-white px-2">
+                <button class="tab active" data-tab="recent">Recent</button>
+                <button class="tab" data-tab="shared">Shared with Me</button>
+                <button class="tab" data-tab="my-videos">My Videos</button>
+                <button class="tab" data-tab="downloads">Downloads</button>
+            </div>
+            
+            <div class="px-4 pt-4">
+                <div id="recent-tab" class="tab-content active">
+                    <h2 class="text-lg font-bold mb-3">Continue Watching</h2>
+                    <div class="overflow-x-auto scrollbar-hide">
+                        <div class="flex space-x-3 py-2">
+                            <div class="flex-shrink-0 w-48 cursor-pointer" onclick="showVideoPlayerModal('UX Design Principles 2023')">
+                                <div class="thumbnail">
+                                    <img src="https://picsum.photos/192/112?random=1" alt="Video thumbnail" class="w-full h-28 object-cover rounded-lg">
+                                    <div class="duration">05:36</div>
+                                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                                        <div class="bg-red-500 h-full" style="width: 65%;"></div>
+                                    </div>
+                                </div>
+                                <h3 class="text-sm font-medium mt-1 truncate">UX Design Principles 2023</h3>
+                                <p class="text-xs text-gray-500">254K views • 2 days ago</p>
+                            </div>
+                            <div class="flex-shrink-0 w-48 cursor-pointer" onclick="showVideoPlayerModal('Modern App Design Tutorial')">
+                                <div class="thumbnail">
+                                    <img src="https://picsum.photos/192/112?random=2" alt="Video thumbnail" class="w-full h-28 object-cover rounded-lg">
+                                    <div class="duration">12:08</div>
+                                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                                        <div class="bg-red-500 h-full" style="width: 30%;"></div>
+                                    </div>
+                                </div>
+                                <h3 class="text-sm font-medium mt-1 truncate">Modern App Design Tutorial</h3>
+                                <p class="text-xs text-gray-500">1.2M views • 1 week ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recently Added -->
+                    <h2 class="text-lg font-bold mt-6 mb-3">Recently Added</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="card cursor-pointer" onclick="showVideoPlayerModal('Product Design Process')">
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=3" alt="Video thumbnail" class="w-full h-40 object-cover rounded-t-lg">
+                                <div class="duration">08:42</div>
+                                <div class="price-tag">$2.99</div> <!-- Assuming price might still be relevant -->
+                            </div>
+                            <div class="p-3">
+                                <h3 class="text-base font-medium">Product Design Process</h3>
+                                <p class="text-xs text-gray-500">Uploaded 3 days ago</p>
+                            </div>
+                        </div>
+                        <div class="card cursor-pointer" onclick="showVideoPlayerModal('Morning Routine 2023')">
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=4" alt="Video thumbnail" class="w-full h-40 object-cover rounded-t-lg">
+                                <div class="duration">12:15</div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="text-base font-medium">Morning Routine 2023</h3>
+                                <p class="text-xs text-gray-500">Uploaded 1 week ago</p>
+                            </div>
+                        </div>
+                         <div class="card cursor-pointer" onclick="showVideoPlayerModal('Project Alpha Update')">
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=5" alt="Video thumbnail" class="w-full h-40 object-cover rounded-t-lg">
+                                <div class="duration">05:10</div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="text-base font-medium">Project Alpha Update</h3>
+                                <p class="text-xs text-gray-500">Uploaded 2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div id="shared-tab" class="tab-content">
+                     <!-- Empty State Placeholder -->
+                     <!-- <div class="text-center py-10 text-gray-500">
+                         <i class="fas fa-share-alt text-3xl mb-2"></i>
+                         <p>No videos have been shared with you yet.</p>
+                      </div> -->
+                    <div class="pt-4 space-y-4">
+                        <div class="card p-3 cursor-pointer" onclick="showVideoPlayerModal('NYC Travel Guide 2023')">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full mr-2"></div>
+                                <div>
+                                    <p class="text-sm font-medium">Alex Johnson</p>
+                                    <p class="text-xs text-gray-500">Shared 2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=6" alt="Video thumbnail" class="w-full h-40 object-cover rounded-lg">
+                                <div class="duration">10:23</div>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <h3 class="text-base font-medium">NYC Travel Guide 2023</h3>
+                                <span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-medium">Paid</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Check out this amazing NYC guide I found! Perfect for your upcoming trip.</p>
+                            <div class="flex justify-end mt-3">
+                                <button class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-download mr-1"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card p-3 cursor-pointer" onclick="showVideoPlayerModal('UI Animation Techniques')">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full mr-2"></div>
+                                <div>
+                                    <p class="text-sm font-medium">Samantha Lee</p>
+                                    <p class="text-xs text-gray-500">Shared 1 day ago</p>
+                                </div>
+                            </div>
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=7" alt="Video thumbnail" class="w-full h-40 object-cover rounded-lg">
+                                <div class="duration">05:17</div>
+                            </div>
+                            <h3 class="text-base font-medium mt-2">UI Animation Techniques</h3>
+                            <p class="text-sm text-gray-600 mt-1">This helped me a lot with our new project's micro-interactions!</p>
+                            <div class="flex justify-end mt-3">
+                                <button class="text-sm flex items-center text-gray-600">
+                                    <i class="fas fa-download mr-1"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="my-videos-tab" class="tab-content">
+                    <div class="flex justify-between items-center py-4">
+                        <h2 class="text-lg font-bold">My Videos</h2>
+                        <button class="btn-primary px-4 py-2 rounded-full text-sm font-medium flex items-center" onclick="showScreen('upload-screen')">
+                            <i class="fas fa-plus mr-1"></i> Upload
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="card cursor-pointer" onclick="showVideoPlayerModal('Product Design Process')">
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=8" alt="Video thumbnail" class="w-full h-40 object-cover rounded-t-lg">
+                                <div class="duration">08:42</div>
+                                <div class="price-tag">$2.99</div>
+                            </div>
+                            <div class="p-3">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-base font-medium">Product Design Process</h3>
+                                        <p class="text-xs text-gray-500">Uploaded 3 days ago</p>
+                                    </div>
+                                    <button class="text-gray-600">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-2 space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span>1.2K views</span>
+                                        <span>$58.34 earned</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between mt-3">
+                                    <button class="text-xs flex items-center text-gray-600" onclick="showScreen('analytics-screen')">
+                                        <i class="fas fa-chart-line mr-1"></i> Analytics
+                                    </button>
+                                    <button class="text-xs flex items-center text-gray-600" onclick="showScreen('upload-screen');">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card cursor-pointer" onclick="showVideoPlayerModal('Morning Routine 2023')">
+                            <div class="thumbnail">
+                                <img src="https://picsum.photos/300/160?random=9" alt="Video thumbnail" class="w-full h-40 object-cover rounded-t-lg">
+                                <div class="duration">12:15</div>
+                            </div>
+                            <div class="p-3">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-base font-medium">Morning Routine 2023</h3>
+                                        <p class="text-xs text-gray-500">Uploaded 1 week ago</p>
+                                    </div>
+                                    <button class="text-gray-600">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-2 space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span>3.5K views</span>
+                                        <span>$12.80 earned</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between mt-3">
+                                    <button class="text-xs flex items-center text-gray-600" onclick="showScreen('analytics-screen')">
+                                        <i class="fas fa-chart-line mr-1"></i> Analytics
+                                    </button>
+                                    <button class="text-xs flex items-center text-gray-600" onclick="showScreen('upload-screen');">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button class="text-sm font-medium text-primary" onclick="showScreen('collections-screen')">
+                                Manage Collections <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="downloads-tab" class="tab-content">
+                     <!-- Empty State Placeholder -->
+                     <!-- <div class="text-center py-10 text-gray-500">
+                         <i class="fas fa-download text-3xl mb-2"></i>
+                         <p>You haven't downloaded any videos yet.</p>
+                     </div> -->
+                    <div class="py-4">
+                        <h2 class="text-lg font-bold mb-3">Downloaded Videos</h2>
+                        
+                        <div class="space-y-3">
+                            <div class="card p-3 flex cursor-pointer" onclick="showVideoPlayerModal('Meditation Guide for Beginners')">
+                                <img src="https://picsum.photos/96/64?random=10" alt="Video thumbnail" class="w-24 h-16 object-cover rounded-lg mr-3 flex-shrink-0">
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium">Meditation Guide for Beginners</h3>
+                                    <p class="text-xs text-gray-500">Downloaded 2 days ago</p>
+                                    <div class="flex items-center mt-1 text-xs text-gray-600">
+                                        <i class="fas fa-check-circle text-green-500 mr-1"></i> Available offline
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                            
+                            <div class="card p-3 flex cursor-pointer" onclick="showVideoPlayerModal('JavaScript Advanced Techniques')">
+                                <img src="https://picsum.photos/96/64?random=11" alt="Video thumbnail" class="w-24 h-16 object-cover rounded-lg mr-3 flex-shrink-0">
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium">JavaScript Advanced Techniques</h3>
+                                    <p class="text-xs text-gray-500">Downloaded 1 week ago</p>
+                                    <div class="flex items-center mt-1 text-xs text-gray-600">
+                                        <i class="fas fa-check-circle text-green-500 mr-1"></i> Available offline
+                                    </div>
+                                </div>
+                                
+                            </div>
+                             
+                            
+                            <div class="card p-3 flex cursor-pointer" onclick="showVideoPlayerModal('Home Workout - No Equipment')">
+                                <img src="https://picsum.photos/96/64?random=12" alt="Video thumbnail" class="w-24 h-16 object-cover rounded-lg mr-3 flex-shrink-0">
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-medium">Home Workout - No Equipment</h3>
+                                    <p class="text-xs text-gray-500">Downloaded 2 weeks ago</p>
+                                    <div class="flex items-center mt-1 text-xs text-gray-600">
+                                        <i class="fas fa-check-circle text-green-500 mr-1"></i> Available offline
+                                    </div>
+                                </div>
+                                
+                            </div>
+                             
+                        </div>
+                        
+                        <h2 class="text-lg font-bold mb-3 mt-6">Download Queue</h2>
+                        
+                        <div class="card p-3 flex"> <!-- Don't make queue items clickable to video screen -->
+                            <img src="https://picsum.photos/96/64?random=13" alt="Video thumbnail" class="w-24 h-16 object-cover rounded-lg mr-3 flex-shrink-0">
+                            <div class="flex-1">
+                                <h3 class="text-sm font-medium">Digital Marketing in 2023</h3>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="text-xs text-gray-500">45% completed</span>
+                                    <span class="text-xs text-gray-500">32 MB / 76 MB</span>
+                                </div>
+                                <div class="progress-bar mt-1">
+                                    <div class="progress-bar-fill" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <button class="text-gray-600">
+                                <i class="fas fa-pause"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIDEO SCREEN -->
+        <!-- Removed entire video screen section -->
+        
+        <!-- UPLOAD SCREEN -->
+        <section id="upload-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center">
+                <button class="mr-3" onclick="showScreen('home-screen')">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">Upload Video</h1>
+            </div>
+            
+            <div class="p-4">
+                <div class="upload-zone mb-6">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                    <h3 class="text-base font-medium">Tap to select a video</h3>
+                    <p class="text-xs text-gray-500 mt-1">Support formats: MP4, MOV, AVI</p>
+                    <p class="text-xs text-gray-500 mt-1">Max size: 2GB</p>
+                    <p class="text-xs text-blue-500 mt-3">Video quality will be automatically optimized</p>
+                </div>
+                
+                <div id="upload-progress" class="mb-6 hidden">
+                    <h3 class="text-base font-medium mb-2">Uploading video...</h3>
+                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>65% completed</span>
+                        <span>45 MB / 70 MB</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 65%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Estimated time remaining: 1 minute</p>
+                    <p class="text-xs text-blue-500 mt-2">
+                        <i class="fas fa-cog fa-spin mr-1"></i>
+                        Processing quality: Detecting best format...
+                    </p>
+                </div>
+                
+                <div id="upload-form">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Video Title *</label>
+                            <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-sm" placeholder="Add a title that describes your video">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Description</label>
+                            <textarea class="w-full p-3 border border-gray-300 rounded-lg text-sm h-24" placeholder="Tell viewers about your video"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Price</label>
+                            <div class="flex items-center space-x-3">
+                                <select class="p-3 border border-gray-300 rounded-lg text-sm flex-1">
+                                    <option>Free</option>
+                                    <option>Paid</option>
+                                    <option>Both (with ads)</option>
+                                </select>
+                                <div class="w-24">
+                                    <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-sm" placeholder="$0.99">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Expiry Date</label>
+                            <input type="date" class="w-full p-3 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-3">Add to Collection</label>
+                            <select class="w-full p-3 border border-gray-300 rounded-lg text-sm">
+                                <option>None</option>
+                                <option>Web Development</option>
+                                <option>Design Tutorials</option>
+                                <option>Travel Vlogs</option>
+                                <option>+ Create New Collection</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center justify-between text-sm font-medium mb-3">
+                                <span>Allow with ads</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <p class="text-xs text-gray-500">
+                                Enabling ads may help you earn more from free video views
+                            </p>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button class="btn-primary w-full py-3 rounded-lg font-medium">
+                                Upload Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- COLLECTIONS SCREEN -->
+        <section id="collections-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button class="mr-3" onclick="showScreen('home-screen')">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold">My Collections</h1>
+                </div>
+                <button class="btn-primary px-4 py-1 rounded-full text-sm font-medium">
+                    <i class="fas fa-plus mr-1"></i> New
+                </button>
+            </div>
+            
+            <div class="p-4">
+                <div class="space-y-4">
+                    <div class="card overflow-hidden">
+                        <div class="collection h-40">
+                            <div class="bg-gray-300 h-full w-full"></div>
+                            <div class="collection-overlay">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-bold">Web Development</h3>
+                                        <p class="text-sm">8 videos • 4 hours total</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-white bg-black bg-opacity-20 p-1 rounded">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-white">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex justify-between text-sm">
+                                <span>$19.99</span>
+                                <span>642 purchases</span>
+                            </div>
+                            <div class="mt-3 space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span>Total earnings</span>
+                                    <span class="font-medium">$8,952.14</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>Views</span>
+                                    <span>12.4K</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('analytics-screen')">
+                                    <i class="fas fa-chart-line mr-1"></i> Analytics
+                                </button>
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('collection-edit-screen')">
+                                    <i class="fas fa-edit mr-1"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card overflow-hidden">
+                        <div class="collection h-40">
+                            <div class="bg-gray-300 h-full w-full"></div>
+                            <div class="collection-overlay">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-bold">Mobile UI Design</h3>
+                                        <p class="text-sm">6 videos • 3.5 hours total</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-white bg-black bg-opacity-20 p-1 rounded">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-white">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex justify-between text-sm">
+                                <span>$14.99</span>
+                                <span>328 purchases</span>
+                            </div>
+                            <div class="mt-3 space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span>Total earnings</span>
+                                    <span class="font-medium">$3,459.87</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>Views</span>
+                                    <span>8.7K</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('analytics-screen')">
+                                    <i class="fas fa-chart-line mr-1"></i> Analytics
+                                </button>
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('collection-edit-screen')">
+                                    <i class="fas fa-edit mr-1"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card overflow-hidden">
+                        <div class="collection h-40">
+                            <div class="bg-gray-300 h-full w-full"></div>
+                            <div class="collection-overlay">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-bold">Travel Series: Europe</h3>
+                                        <p class="text-sm">12 videos • 8 hours total</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-white bg-black bg-opacity-20 p-1 rounded">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-white">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex justify-between text-sm">
+                                <span>$24.99</span>
+                                <span>185 purchases</span>
+                            </div>
+                            <div class="mt-3 space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span>Total earnings</span>
+                                    <span class="font-medium">$2,945.68</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>Views</span>
+                                    <span>5.2K</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('analytics-screen')">
+                                    <i class="fas fa-chart-line mr-1"></i> Analytics
+                                </button>
+                                <button class="text-xs flex items-center text-gray-600" onclick="showScreen('collection-edit-screen')">
+                                    <i class="fas fa-edit mr-1"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- COLLECTION EDIT SCREEN -->
+        <section id="collection-edit-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center">
+                <button class="mr-3" onclick="showScreen('collections-screen')">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">Edit Collection</h1>
+            </div>
+            
+            <div class="p-4">
+                <div class="space-y-4">
+                    <div class="relative">
+                        <div class="bg-gray-300 h-40 w-full rounded-lg flex items-center justify-center">
+                            <i class="fas fa-image text-gray-500 text-3xl"></i>
+                        </div>
+                        <button class="absolute bottom-3 right-3 bg-white p-2 rounded-full shadow-md">
+                            <i class="fas fa-camera text-gray-600"></i>
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Collection Name *</label>
+                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="Web Development">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Description</label>
+                        <textarea class="w-full p-3 border border-gray-300 rounded-lg text-sm h-24">A comprehensive collection covering web development from basics to advanced techniques. Learn HTML, CSS, JavaScript and more!</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Price</label>
+                        <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="$19.99">
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center justify-between text-sm font-medium mb-3">
+                            <span>Allow with ads</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                        <p class="text-xs text-gray-500">
+                            Enabling ads may help you earn more from free preview views
+                        </p>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <label class="block text-sm font-medium mb-3">Videos in This Collection</label>
+                        <p class="text-xs text-gray-500 mb-3">Drag to reorder videos</p>
+                        
+                        <div class="drag-container">
+                            <div class="drag-item flex items-center" draggable="true">
+                                <div class="mr-2 text-gray-400">
+                                    <i class="fas fa-grip-lines"></i>
+                                </div>
+                                <div class="w-12 h-8 bg-gray-300 rounded flex-shrink-0 mr-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">HTML Basics</p>
+                                    <p class="text-xs text-gray-500">15:24 • 5.2K views</p>
+                                </div>
+                                <div class="flex space-x-2 items-center">
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </button>
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="drag-item flex items-center mt-2" draggable="true">
+                                <div class="mr-2 text-gray-400">
+                                    <i class="fas fa-grip-lines"></i>
+                                </div>
+                                <div class="w-12 h-8 bg-gray-300 rounded flex-shrink-0 mr-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">CSS Fundamentals</p>
+                                    <p class="text-xs text-gray-500">18:45 • 4.8K views</p>
+                                </div>
+                                <div class="flex space-x-2 items-center">
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </button>
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="drag-item flex items-center mt-2" draggable="true">
+                                <div class="mr-2 text-gray-400">
+                                    <i class="fas fa-grip-lines"></i>
+                                </div>
+                                <div class="w-12 h-8 bg-gray-300 rounded flex-shrink-0 mr-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">JavaScript Basics</p>
+                                    <p class="text-xs text-gray-500">25:10 • 6.3K views</p>
+                                </div>
+                                <div class="flex space-x-2 items-center">
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </button>
+                                    <button class="text-gray-400 p-1">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="mt-4 w-full border border-dashed border-gray-300 p-3 rounded-lg text-sm text-gray-500 flex items-center justify-center">
+                            <i class="fas fa-plus mr-2"></i> Add More Videos
+                        </button>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button class="btn-primary w-full py-3 rounded-lg font-medium mt-4">
+                            Save Changes
+                        </button>
+                        <button class="w-full py-3 rounded-lg font-medium mt-2 text-red-500">
+                            Delete Collection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- PROFILE SCREEN -->
+        <section id="profile-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center">
+                <button class="mr-3" onclick="showScreen('home-screen')">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">My Profile</h1>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex flex-col items-center pb-6 border-b border-gray-200">
+                    <div class="w-24 h-24 bg-gray-300 rounded-full mb-3"></div>
+                    <h2 class="text-lg font-bold">John Smith</h2>
+                    <p class="text-sm text-gray-600">john.smith@example.com</p>
+                    <button class="mt-3 border border-gray-300 px-4 py-1 rounded-full text-sm font-medium">
+                        Edit Profile
+                    </button>
+                </div>
+                
+                <div class="py-4">
+                    <h3 class="text-base font-bold mb-3">Account Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Full Name</label>
+                            <input type="text" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="John Smith">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Gender</label>
+                            <select class="w-full p-3 border border-gray-300 rounded-lg text-sm">
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Non-binary</option>
+                                <option>Prefer not to say</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Age</label>
+                            <input type="number" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="32">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Mobile Number</label>
+                            <input type="tel" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="+1 (555) 123-4567">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Email Address</label>
+                            <input type="email" class="w-full p-3 border border-gray-300 rounded-lg text-sm" value="john.smith@example.com">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="py-4 border-t border-gray-200">
+                    <h3 class="text-base font-bold mb-3">Account Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Download Quality</h4>
+                                <p class="text-xs text-gray-500">Choose your preferred download quality</p>
+                            </div>
+                            <select class="p-2 border border-gray-300 rounded-lg text-sm">
+                                <option>HD</option>
+                                <option>HQ</option>
+                                <option>AUTO</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Dark Mode</h4>
+                                <p class="text-xs text-gray-500">Switch between light and dark themes</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Notifications</h4>
+                                <p class="text-xs text-gray-500">Receive push notifications</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Autoplay Videos</h4>
+                                <p class="text-xs text-gray-500">Videos will play automatically</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="py-4 border-t border-gray-200">
+                    <button class="w-full py-3 text-center text-red-500 font-medium">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- EARNINGS SCREEN -->
+        <section id="earnings-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center">
+                <button class="mr-3" onclick="showScreen('home-screen')">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">My Earnings</h1>
+            </div>
+            
+            <div class="p-4">
+                <div class="bg-primary bg-opacity-10 p-4 rounded-xl">
+                    <h2 class="text-sm font-medium text-gray-600">Total Balance</h2>
+                    <div class="text-2xl font-bold mt-1">$1,284.56</div>
+                    <div class="flex items-center mt-1 text-xs text-gray-600">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        12% from last month
+                    </div>
+                    <button class="btn-primary w-full py-2 rounded-lg font-medium text-sm mt-4">
+                        Withdraw Funds
+                    </button>
+                </div>
+                
+                <div class="flex justify-between mt-6 mb-3">
+                    <h3 class="text-base font-bold">Earnings History</h3>
+                    <select class="text-xs border border-gray-300 rounded-lg px-2 py-1">
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                        <option>Last 3 Months</option>
+                        <option>All Time</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="card p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Video Purchase</h4>
+                                <p class="text-xs text-gray-500">UX Design Principles</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-green-500">+$2.99</div>
+                                <p class="text-xs text-gray-500">Jun 12, 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Collection Purchase</h4>
+                                <p class="text-xs text-gray-500">Web Development</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-green-500">+$19.99</div>
+                                <p class="text-xs text-gray-500">Jun 10, 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Ad Revenue</h4>
+                                <p class="text-xs text-gray-500">Morning Routine 2023</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-green-500">+$0.87</div>
+                                <p class="text-xs text-gray-500">Jun 9, 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Referral Bonus</h4>
+                                <p class="text-xs text-gray-500">User: alex@example.com</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-green-500">+$5.00</div>
+                                <p class="text-xs text-gray-500">Jun 8, 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-3">
+                        <div class="flex justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium">Withdrawal</h4>
+                                <p class="text-xs text-gray-500">To Bank Account ****3256</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-red-500">-$250.00</div>
+                                <p class="text-xs text-gray-500">Jun 1, 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-base font-bold mb-3">Top Performing Content</h3>
+                    <div class="space-y-3">
+                        <div class="card p-3">
+                            <div class="flex">
+                                <div class="w-16 h-12 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium">UX Design Principles</h4>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="text-xs text-gray-500">$428.89 earned</p>
+                                        <p class="text-xs text-gray-500">143 purchases</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card p-3">
+                            <div class="flex">
+                                <div class="w-16 h-12 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium">Web Development Collection</h4>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="text-xs text-gray-500">$395.60 earned</p>
+                                        <p class="text-xs text-gray-500">21 purchases</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card p-3">
+                            <div class="flex">
+                                <div class="w-16 h-12 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium">Mobile UI Design Collection</h4>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="text-xs text-gray-500">$271.84 earned</p>
+                                        <p class="text-xs text-gray-500">18 purchases</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 border-t border-gray-200 pt-4">
+                    <h3 class="text-base font-bold mb-3">Refer & Earn</h3>
+                    <div class="bg-gray-100 p-4 rounded-xl">
+                        <p class="text-sm">Share your referral code and earn $5 for each new user who signs up!</p>
+                        <div class="flex mt-3">
+                            <input type="text" class="flex-1 p-2 border border-gray-300 rounded-l-lg text-sm bg-white" value="VIDORA-JOHNSMITH" readonly>
+                            <button class="bg-gray-800 text-white px-3 py-2 rounded-r-lg text-sm">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between mt-4 text-sm">
+                            <div>
+                                <div class="font-medium">12</div>
+                                <div class="text-xs text-gray-500">Referrals</div>
+                            </div>
+                            <div>
+                                <div class="font-medium">$60.00</div>
+                                <div class="text-xs text-gray-500">Earned</div>
+                            </div>
+                            <div>
+                                <div class="font-medium">$15.00</div>
+                                <div class="text-xs text-gray-500">Pending</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ANALYTICS SCREEN -->
+        <section id="analytics-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button class="mr-3" onclick="showScreen('home-screen')">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold">Analytics</h1>
+                </div>
+                <select class="text-xs border border-gray-300 rounded-lg px-2 py-1">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>All Time</option>
+                </select>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex justify-between mb-4">
+                    <div class="analytics-card flex-1 mr-2">
+                        <h3 class="text-sm font-medium text-gray-600">Total Views</h3>
+                        <div class="text-xl font-bold mt-1">24.8K</div>
+                        <div class="text-xs text-green-500 mt-1">↑ 12% vs. previous period</div>
+                    </div>
+                    <div class="analytics-card flex-1 ml-2">
+                        <h3 class="text-sm font-medium text-gray-600">Earnings</h3>
+                        <div class="text-xl font-bold mt-1">$542.87</div>
+                        <div class="text-xs text-green-500 mt-1">↑ 8% vs. previous period</div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mb-4">
+                    <div class="analytics-card flex-1 mr-2">
+                        <h3 class="text-sm font-medium text-gray-600">Subscribers</h3>
+                        <div class="text-xl font-bold mt-1">1,287</div>
+                        <div class="text-xs text-green-500 mt-1">↑ 5% vs. previous period</div>
+                    </div>
+                    <div class="analytics-card flex-1 ml-2">
+                        <h3 class="text-sm font-medium text-gray-600">Avg. Watch Time</h3>
+                        <div class="text-xl font-bold mt-1">4:32</div>
+                        <div class="text-xs text-red-500 mt-1">↓ 2% vs. previous period</div>
+                    </div>
+                </div>
+                
+                <div class="analytics-card mb-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-medium">Views Over Time</h3>
+                        <div class="text-xs text-gray-500">+18% this period</div>
+                    </div>
+                    <div class="analytics-chart mt-3">
+                        <div class="chart-bar" style="height: 30%; left: 5%"></div>
+                        <div class="chart-bar" style="height: 45%; left: 15%"></div>
+                        <div class="chart-bar" style="height: 60%; left: 25%"></div>
+                        <div class="chart-bar" style="height: 40%; left: 35%"></div>
+                        <div class="chart-bar" style="height: 75%; left: 45%"></div>
+                        <div class="chart-bar" style="height: 65%; left: 55%"></div>
+                        <div class="chart-bar" style="height: 80%; left: 65%"></div>
+                        <div class="chart-bar" style="height: 85%; left: 75%"></div>
+                        <div class="chart-bar" style="height: 70%; left: 85%"></div>
+                        <div class="chart-bar" style="height: 90%; left: 95%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <div>Jun 1</div>
+                        <div>Jun 15</div>
+                        <div>Jun 30</div>
+                    </div>
+                </div>
+                
+                <div class="analytics-card mb-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-medium">Earnings By Source</h3>
+                        <button class="text-xs text-primary">View Details</button>
+                    </div>
+                    <div class="relative h-40 mt-4 mb-2">
+                        <div class="absolute inset-0 rounded-full border-8 border-secondary opacity-20"></div>
+                        <div class="absolute inset-0 rounded-full border-8 border-transparent border-t-secondary border-r-secondary" style="transform: rotate(225deg)"></div>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span class="text-2xl font-bold">$542</span>
+                            <span class="text-xs text-gray-500">Total Earnings</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mt-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-secondary rounded-full mr-2"></div>
+                            <div class="text-sm">Video Purchases</div>
+                            <div class="ml-auto text-sm font-medium">$324.56 (60%)</div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                            <div class="text-sm">Collection Sales</div>
+                            <div class="ml-auto text-sm font-medium">$165.43 (30%)</div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
+                            <div class="text-sm">Ad Revenue</div>
+                            <div class="ml-auto text-sm font-medium">$52.88 (10%)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-card mb-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-medium">Top Performing Videos</h3>
+                        <button class="text-xs text-primary">View All</button>
+                    </div>
+                    <div class="space-y-3 mt-3">
+                        <div class="flex items-center">
+                            <div class="w-16 h-10 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="text-sm font-medium">UX Design Principles</h4>
+                                    <span class="text-xs font-medium">8.2K views</span>
+                                </div>
+                                <div class="progress-bar mt-1">
+                                    <div class="progress-bar-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-16 h-10 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="text-sm font-medium">Web Dev Masterclass</h4>
+                                    <span class="text-xs font-medium">6.4K views</span>
+                                </div>
+                                <div class="progress-bar mt-1">
+                                    <div class="progress-bar-fill" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-16 h-10 bg-gray-300 rounded-lg mr-3 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="text-sm font-medium">Morning Routine 2023</h4>
+                                    <span class="text-xs font-medium">5.1K views</span>
+                                </div>
+                                <div class="progress-bar mt-1">
+                                    <div class="progress-bar-fill" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-card mb-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-medium">Audience Demographics</h3>
+                        <button class="text-xs text-primary">View Details</button>
+                    </div>
+                    <div class="mt-3">
+                        <h4 class="text-sm font-medium mb-2">Age Groups</h4>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>18-24</span>
+                                    <span>35%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>25-34</span>
+                                    <span>42%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 42%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>35-44</span>
+                                    <span>15%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 15%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>45+</span>
+                                    <span>8%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: 8%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="text-sm font-medium mb-2">Top Geographies</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>United States</span>
+                                <span>45%</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>India</span>
+                                <span>15%</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>United Kingdom</span>
+                                <span>12%</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Canada</span>
+                                <span>8%</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Germany</span>
+                                <span>5%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-card">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-medium">Engagement Analytics</h3>
+                        <div class="text-xs text-gray-500">Last 30 days</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-3">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <h4 class="text-xs text-gray-500">Likes</h4>
+                            <div class="text-lg font-medium mt-1">3,482</div>
+                            <div class="text-xs text-green-500">+15% from previous period</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <h4 class="text-xs text-gray-500">Comments</h4>
+                            <div class="text-lg font-medium mt-1">847</div>
+                            <div class="text-xs text-green-500">+8% from previous period</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <h4 class="text-xs text-gray-500">Shares</h4>
+                            <div class="text-lg font-medium mt-1">576</div>
+                            <div class="text-xs text-green-500">+23% from previous period</div>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <h4 class="text-xs text-gray-500">Avg. Watch Time</h4>
+                            <div class="text-lg font-medium mt-1">4:32</div>
+                            <div class="text-xs text-red-500">-2% from previous period</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="w-full py-3 bg-gray-100 rounded-lg text-sm font-medium mt-4">
+                    Export Analytics Report
+                </button>
+            </div>
+        </section>
+        
+        <!-- NOTIFICATIONS SCREEN -->
+        <section id="notifications-screen" class="screen fade-in">
+            <div class="header px-4 py-3 flex items-center">
+                <button class="mr-3" onclick="showScreen('home-screen')">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold">Notifications</h1>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex justify-between mb-4">
+                    <h3 class="text-base font-bold">Recent</h3>
+                    <button class="text-sm text-primary font-medium">
+                        Mark all as read
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="notification bg-primary bg-opacity-5">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-dollar-sign text-primary"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">New Earnings</h4>
+                                <p class="text-xs text-gray-600 mt-1">You earned $19.99 from a collection purchase.</p>
+                                <p class="text-xs text-gray-500 mt-1">2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification bg-primary bg-opacity-5">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">Upload Complete</h4>
+                                <p class="text-xs text-gray-600 mt-1">Your video "UX Design Principles" has been processed and published.</p>
+                                <p class="text-xs text-gray-500 mt-1">5 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification bg-primary bg-opacity-5">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-user-plus text-blue-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">New Referral</h4>
+                                <p class="text-xs text-gray-600 mt-1">Someone signed up using your referral code. You earned $5.00!</p>
+                                <p class="text-xs text-gray-500 mt-1">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-base font-bold mt-6 mb-3">Earlier</h3>
+                
+                <div class="space-y-3">
+                    <div class="notification">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-thumbs-up text-gray-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">New Like</h4>
+                                <p class="text-xs text-gray-600 mt-1">User @designpro liked your video "Mobile UI Design".</p>
+                                <p class="text-xs text-gray-500 mt-1">3 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-comment text-gray-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">New Comment</h4>
+                                <p class="text-xs text-gray-600 mt-1">User @johndev commented: "Great tutorial, thanks for sharing!"</p>
+                                <p class="text-xs text-gray-500 mt-1">5 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification">
+                        <div class="flex">
+                            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-dollar-sign text-gray-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">Payment Processed</h4>
+                                <p class="text-xs text-gray-600 mt-1">Your withdrawal of $250.00 has been processed successfully.</p>
+                                <p class="text-xs text-gray-500 mt-1">1 week ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SEARCH SCREEN -->
+        <section id="search-screen" class="screen fade-in">
+            <div class="header px-4 py-3">
+                <div class="flex items-center space-x-2">
+                    <button onclick="showScreen('home-screen')">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <div class="search-bar flex-1 flex items-center bg-gray-100 px-3 py-2">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>
+                        <input type="text" class="bg-transparent w-full text-sm outline-none" placeholder="Search videos, collections, users...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-4 pt-3">
+                <div class="tab-bar border-b border-gray-200 pb-2">
+                    <button class="tab active" data-search-tab="all">All</button>
+                    <button class="tab" data-search-tab="videos">Videos</button>
+                    <button class="tab" data-search-tab="collections">Collections</button>
+                    <button class="tab" data-search-tab="users">Users</button>
+                </div>
+                
+                <div class="py-4">
+                    <h3 class="text-sm font-medium mb-3">Recent Searches</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-history text-gray-400 mr-3"></i>
+                            <span class="text-sm">web development tutorial</span>
+                            <button class="ml-auto text-gray-400">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-history text-gray-400 mr-3"></i>
+                            <span class="text-sm">ux design principles</span>
+                            <button class="ml-auto text-gray-400">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-history text-gray-400 mr-3"></i>
+                            <span class="text-sm">mobile app design</span>
+                            <button class="ml-auto text-gray-400">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="py-4 border-t border-gray-200">
+                    <h3 class="text-sm font-medium mb-3">Trending Searches</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            UI Design
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            React JS
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            Figma Tutorial
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            Product Design
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            Swift Programming
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                            UX Research
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- NAVBAR (Mobile only) -->
+    <nav class="navbar py-2 px-4 flex justify-around items-center">
+        <a href="#" class="flex flex-col items-center active" onclick="showScreen('home-screen'); return false;">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-xs mt-1">Home</span>
+        </a>
+        <a href="#" class="flex flex-col items-center" onclick="showScreen('search-screen'); return false;">
+            <i class="fas fa-search text-xl"></i>
+            <span class="text-xs mt-1">Search</span>
+        </a>
+        <a href="#" class="flex flex-col items-center" onclick="showScreen('upload-screen'); return false;">
+            <i class="fas fa-plus-square text-xl"></i>
+            <span class="text-xs mt-1">Upload</span>
+        </a>
+        <a href="#" class="flex flex-col items-center" onclick="showScreen('earnings-screen'); return false;">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-xs mt-1">Earnings</span>
+        </a>
+        <a href="#" class="flex flex-col items-center" onclick="showScreen('profile-screen'); return false;">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-xs mt-1">Profile</span>
+        </a>
+    </nav>
+
+    <!-- VIDEO PLAYER MODAL -->
+    <div id="video-player-modal-overlay" onclick="hideVideoPlayerModal()">
+        <div id="video-player-modal" onclick="event.stopPropagation()">
+            <div class="video-placeholder bg-black"> 
+                 
+                 <video id="modal-video-player" class="absolute top-0 left-0 w-full h-full" controls autoplay muted> 
+                     
+                     Your browser does not support the video tag.
+                 </video>
+            </div>
+            <div class="p-4 relative"> 
+                <button onclick="hideVideoPlayerModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
+                <div class="mb-3"> 
+                    <h2 id="modal-video-title" class="text-lg font-bold pr-8">Video Title</h2> 
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                     <button class="p-3 rounded-lg flex flex-col items-center bg-gray-100 border border-gray-200">
+                        <i class="fas fa-ad text-xl mb-1 text-gray-600"></i>
+                        <span class="text-xs text-center">Watch Ad<br>to Continue</span>
+                    </button>
+                     <button class="btn-primary p-3 rounded-lg flex flex-col items-center">
+                        <i class="fas fa-rupee-sign text-xl mb-1"></i>
+                        <span class="text-xs text-center">Pay ₹2<br>to Watch/Download</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- For PDF, let's add a continuous view of all screens -->
+    <div class="screen-separator"></div>
+    
+    <!-- JavaScript for interactivity -->
+    <script>
+        // Show different screens (Main sections)
+        function showScreen(screenId) {
+            // Hide modal if open
+            hideVideoPlayerModal();
+
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            const screenToShow = document.getElementById(screenId);
+            if (screenToShow) {
+                 screenToShow.classList.add('active');
+            }
+            
+            // Update navbar active state
+            document.querySelectorAll('.navbar a').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-menu a').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Map screens to navbar and sidebar items
+            const screenToNavMap = {
+                'home-screen': 0,
+                'search-screen': 1,
+                'upload-screen': 2,
+                'earnings-screen': 3,
+                'profile-screen': 4
+            };
+            
+            // Map screens to sidebar items
+            const screenToSidebarMap = {
+                'home-screen': 0,
+                'search-screen': 1,
+                'upload-screen': 2,
+                'earnings-screen': 3,
+                'profile-screen': 4,
+                'collections-screen': 5,
+                'analytics-screen': 6,
+                'notifications-screen': 7
+            };
+            
+            if (screenToNavMap[screenId] !== undefined) {
+                document.querySelectorAll('.navbar a')[screenToNavMap[screenId]].classList.add('active');
+            }
+            
+            if (screenToSidebarMap[screenId] !== undefined) {
+                document.querySelectorAll('.sidebar-menu a')[screenToSidebarMap[screenId]].classList.add('active');
+            }
+        }
+
+        // Video Player Modal Functions
+        const videoModalOverlay = document.getElementById('video-player-modal-overlay');
+        const videoModalTitle = document.getElementById('modal-video-title');
+        const videoPlayer = document.getElementById('modal-video-player');
+        const videoSrc = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"; // New Test Video link
+
+        function showVideoPlayerModal(videoTitle) {
+            if (videoModalOverlay && videoModalTitle && videoPlayer) {
+                videoModalTitle.textContent = videoTitle || 'Video Title'; // Set title
+                videoPlayer.src = videoSrc; // Set video source
+                videoModalOverlay.style.display = 'flex'; // Show modal
+                // videoPlayer.play(); // Autoplay is handled by attribute now
+            }
+        }
+
+        function hideVideoPlayerModal() {
+             if (videoModalOverlay && videoPlayer) {
+                videoModalOverlay.style.display = 'none'; // Hide modal
+                videoPlayer.pause(); // Pause video on close
+                videoPlayer.src = ""; // Reset src to stop buffering/loading
+            }
+        }
+        
+        // Tab navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabGroup = this.parentElement.querySelectorAll('.tab');
+                tabGroup.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Handle home screen tabs
+                if (this.dataset.tab) {
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(this.dataset.tab + '-tab').classList.add('active');
+                }
+                
+                // Handle search screen tabs
+                if (this.dataset.searchTab) {
+                    // Would update search results based on tab
+                }
+            });
+        });
+        
+        // Simulate upload progress
+        document.querySelector('.upload-zone').addEventListener('click', function() {
+            this.classList.add('hidden');
+            document.getElementById('upload-progress').classList.remove('hidden');
+            
+            // Simulate progress completion after 3 seconds
+            setTimeout(() => {
+                document.getElementById('upload-progress').classList.add('hidden');
+                document.getElementById('upload-form').classList.add('fade-in');
+            }, 3000);
+        });
+        
+        // Drag and drop functionality
+        const dragItems = document.querySelectorAll('.drag-item');
+        const dragContainer = document.querySelector('.drag-container');
+        
+        dragItems.forEach(item => {
+            item.addEventListener('dragstart', () => {
+                setTimeout(() => item.classList.add('dragging'), 0);
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        });
+        
+        dragContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            dragContainer.classList.add('drag-over');
+            const draggable = document.querySelector('.dragging');
+            const afterElement = getDragAfterElement(dragContainer, e.clientY);
+            
+            if (afterElement == null) {
+                dragContainer.appendChild(draggable);
+            } else {
+                dragContainer.insertBefore(draggable, afterElement);
+            }
+        });
+        
+        dragContainer.addEventListener('dragleave', () => {
+            dragContainer.classList.remove('drag-over');
+        });
+        
+        dragContainer.addEventListener('drop', () => {
+            dragContainer.classList.remove('drag-over');
+        });
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.drag-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        // Initialize charts in analytics screen
+        function initCharts() {
+            // This would normally include chart initialization code
+            // For this demo we're using CSS-based charts
+        }
+        
+        // Initialize the application
+        function initApp() {
+            // Show the home screen initially
+            showScreen('home-screen');
+            initCharts();
+        }
+        
+        // Run the app
+        initApp();
+    </script>
+</body>
+</html>
