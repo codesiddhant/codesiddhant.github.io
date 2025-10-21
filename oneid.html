@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAuth OneID - Universal Authentication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+/* ============================================
+   RAuth OneID - Futuristic Authentication App
+   ============================================ */
+
+/* CSS Variables */
+:root {
+    /* Colors */
+    --primary: #6A5ACD;
+    --primary-dark: #5648B8;
+    --primary-light: #8B7DD8;
+    --accent: #00B894;
+    --accent-dark: #00A080;
+    --error: #E74C3C;
+    --error-dark: #C0392B;
+    --background: #F8F9FB;
+    --surface: #FFFFFF;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6C757D;
+    --text-tertiary: #ADB5BD;
+    --border: #E9ECEF;
+    --shadow: rgba(106, 90, 205, 0.1);
+    --shadow-heavy: rgba(106, 90, 205, 0.2);
+    
+    /* Dark Mode Colors */
+    --dark-background: #0F0F1E;
+    --dark-surface: #1A1A2E;
+    --dark-surface-elevated: #242438;
+    --dark-text-primary: #F8F9FB;
+    --dark-text-secondary: #ADB5BD;
+    --dark-text-tertiary: #6C757D;
+    --dark-border: #2D2D44;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+    
+    /* Typography */
+    --font-primary: 'Poppins', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    --background: var(--dark-background);
+    --surface: var(--dark-surface);
+    --text-primary: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --text-tertiary: var(--dark-text-tertiary);
+    --border: var(--dark-border);
+    --shadow: var(--dark-shadow);
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-secondary);
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* Material Symbols */
+.material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    user-select: none;
+}
+
+/* ============================================
+   Dark Mode Toggle
+   ============================================ */
+
+.dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    background: var(--surface);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 4px 12px var(--shadow);
+    transition: all var(--transition-normal);
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--shadow-heavy);
+}
+
+.dark-mode-toggle .material-symbols-rounded {
+    color: var(--primary);
+    font-size: 24px;
+}
+
+body.dark-mode .dark-mode-toggle .material-symbols-rounded {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ============================================
+   Screen Management
+   ============================================ */
+
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--background);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(100%);
+    transition: all var(--transition-slow);
+    overflow-y: auto;
+    z-index: 1;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    z-index: 10;
+}
+
+.screen.slide-left {
+    transform: translateX(-100%);
+}
+
+/* ============================================
+   Onboarding Screen
+   ============================================ */
+
+.onboarding-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    padding-top: 80px;
+}
+
+.logo-section {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.logo-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    box-shadow: 0 8px 24px var(--shadow-heavy);
+}
+
+.logo-icon .material-symbols-rounded {
+    font-size: 48px;
+    color: white;
+}
+
+.logo-title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Carousel */
+.carousel-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-lg);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all var(--transition-slow);
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.slide-icon {
+    width: 120px;
+    height: 120px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+    box-shadow: 0 8px 32px var(--shadow);
+}
+
+.slide-icon .material-symbols-rounded {
+    font-size: 64px;
+    color: var(--primary);
+}
+
+.carousel-slide h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.carousel-slide p {
+    color: var(--text-secondary);
+    max-width: 300px;
+    line-height: 1.6;
+}
+
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+.indicator {
+    width: 8px;
+    height: 8px;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.indicator.active {
+    width: 24px;
+    background: var(--primary);
+}
+
+/* Login Section */
+.login-section {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    box-shadow: 0 8px 32px var(--shadow);
+}
+
+.login-section h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.input-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.input-group input[type="text"],
+.input-group input[type="tel"],
+.input-group input[type="date"] {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: var(--font-secondary);
+    background: var(--background);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(106, 90, 205, 0.1);
+}
+
+.input-group:has(.country-code) {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.country-code {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.country-code .material-symbols-rounded {
+    font-size: 20px;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    transition: all var(--transition-fast);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(106, 90, 205, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(106, 90, 205, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-danger {
+    background: var(--surface);
+    color: var(--error);
+    border: 2px solid var(--error);
+}
+
+.btn-danger:hover {
+    background: var(--error);
+    color: white;
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: all var(--transition-normal);
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+}
+
+.modal-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.verification-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.verification-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+}
+
+.verification-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+.verification-btn .material-symbols-rounded {
+    font-size: 32px;
+    color: var(--primary);
+}
+
+.verification-btn strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.verification-btn small {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.modal-info {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Approval Modal */
+.approval-modal {
+    text-align: center;
+}
+
+.modal-app-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg);
+}
+
+.modal-app-icon .material-symbols-rounded {
+    font-size: 48px;
+    color: white;
+}
+
+.modal-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-details {
+    background: var(--background);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.detail-item .material-symbols-rounded {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.modal-question {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.btn-approve-modal,
+.btn-deny-modal {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    transition: all var(--transition-fast);
+}
+
+.btn-approve-modal {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-approve-modal:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+}
+
+.btn-deny-modal {
+    background: var(--surface);
+    color: var(--error);
+    border: 2px solid var(--error);
+}
+
+.btn-deny-modal:hover {
+    background: var(--error);
+    color: white;
+}
+
+/* ============================================
+   Form Screen
+   ============================================ */
+
+.form-container {
+    min-height: 100vh;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.form-header h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-header p {
+    color: var(--text-secondary);
+}
+
+.form-content {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    box-shadow: 0 8px 32px var(--shadow);
+}
+
+.gender-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.gender-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.gender-btn .material-symbols-rounded {
+    font-size: 28px;
+}
+
+.gender-btn:hover {
+    border-color: var(--primary);
+}
+
+.gender-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.gender-btn.selected .material-symbols-rounded {
+    color: white;
+}
+
+/* ============================================
+   Permission Screen
+   ============================================ */
+
+.permission-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.permission-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.permission-icon .material-symbols-rounded {
+    font-size: 56px;
+    color: white;
+}
+
+.permission-container h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.permission-container p {
+    color: var(--text-secondary);
+    max-width: 400px;
+    margin-bottom: var(--spacing-xl);
+}
+
+.permission-illustration {
+    width: 200px;
+    height: 200px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-2xl);
+    box-shadow: 0 8px 32px var(--shadow);
+}
+
+.permission-illustration .material-symbols-rounded {
+    font-size: 120px;
+    color: var(--primary);
+    opacity: 0.3;
+}
+
+.permission-actions {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* ============================================
+   Home Dashboard
+   ============================================ */
+
+.app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    background: var(--surface);
+    box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.app-bar h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.icon-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background);
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.icon-btn:hover {
+    background: var(--border);
+}
+
+.icon-btn .material-symbols-rounded {
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+/* Tabs */
+.tabs-container {
+    padding: 0 var(--spacing-lg);
+    padding-top: var(--spacing-md);
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: var(--spacing-lg);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    transition: all var(--transition-fast);
+    transform: translateY(2px); /* Correct visual gap from border */
+}
+
+.tab-btn:hover {
+    color: var(--primary);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-btn .material-symbols-rounded {
+    font-size: 20px;
+}
+
+.tab-content {
+    display: none;
+    padding-bottom: 100px; /* Space for mobile */
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Approval List */
+.approval-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.approval-card {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 4px 12px var(--shadow);
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.approval-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--shadow-heavy);
+}
+
+.app-icon {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-md);
+}
+
+.app-icon .material-symbols-rounded {
+    font-size: 32px;
+    color: white;
+}
+
+.approval-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.approval-content h4 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.approval-type {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.approval-meta,
+.approval-device {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.approval-meta .material-symbols-rounded,
+.approval-device .material-symbols-rounded {
+    font-size: 16px;
+    color: var(--primary);
+}
+
+.approval-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-left: var(--spacing-md);
+}
+
+.approval-actions button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-fast);
+}
+
+.approval-actions button:hover {
+    transform: scale(1.05);
+}
+
+.btn-approve {
+    background: var(--accent);
+}
+
+.btn-approve .material-symbols-rounded {
+    color: white;
+    font-size: 20px;
+}
+
+.btn-deny {
+    background: var(--error);
+}
+
+.btn-deny .material-symbols-rounded {
+    color: white;
+    font-size: 20px;
+}
+
+/* My Apps List */
+.apps-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.app-item {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 4px 12px var(--shadow);
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.app-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--shadow-heavy);
+}
+
+.app-item-content {
+    flex: 1;
+    min-width: 0;
+    margin-right: var(--spacing-md);
+}
+
+.app-item-content h4 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.app-domain {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.app-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm) var(--spacing-lg);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+}
+
+.meta-item .material-symbols-rounded {
+    font-size: 16px;
+    color: var(--primary);
+}
+
+.meta-item.kyc-verified .material-symbols-rounded {
+    color: var(--accent);
+}
+
+.btn-icon-arrow {
+    width: 40px;
+    height: 40px;
+    background: var(--background);
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast);
+}
+
+.btn-icon-arrow:hover {
+    background: var(--border);
+}
+
+.btn-icon-arrow .material-symbols-rounded {
+    font-size: 24px;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Detail Screen (Tablet View)
+   ============================================ */
+
+.detail-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--background);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(100%);
+    transition: all var(--transition-slow);
+    overflow-y: auto;
+    z-index: 20;
+    padding-bottom: 50px;
+}
+
+.detail-screen.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--surface);
+    box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.detail-header h2 {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-left: -44px; /* Counter icon-btn width */
+}
+
+.detail-content {
+    padding: var(--spacing-lg);
+}
+
+.detail-app-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.detail-app-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    margin-right: var(--spacing-md);
+}
+
+.detail-app-text h3 {
+    font-size: 1.5rem;
+}
+
+.detail-app-text p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: 0 4px 12px var(--shadow);
+    margin-bottom: var(--spacing-xl);
+}
+
+.detail-card h4 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--spacing-sm);
+}
+
+.detail-item-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.detail-data-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) 0;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+.detail-data-item.sensitive .detail-value {
+    color: var(--error);
+}
+
+.detail-card .btn-danger {
+    margin-top: var(--spacing-lg);
+}
+
+/* ============================================
+   Profile Screen
+   ============================================ */
+
+.profile-container {
+    padding: var(--spacing-xl);
+    text-align: center;
+    padding-top: 80px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg);
+    box-shadow: 0 4px 16px var(--shadow-heavy);
+}
+
+.profile-avatar .material-symbols-rounded {
+    font-size: 64px;
+    color: white;
+}
+
+.profile-container h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.profile-container p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+}
+
+.profile-info {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    box-shadow: 0 8px 32px var(--shadow);
+    text-align: left;
+    margin-bottom: var(--spacing-xl);
+}
+
+.profile-info h4 {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--spacing-sm);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px dashed var(--border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.info-label .material-symbols-rounded {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.btn-logout {
+    background: var(--error);
+    color: white;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
+}
+
+/* ============================================
+   Settings Screen
+   ============================================ */
+
+.settings-container {
+    padding: var(--spacing-lg);
+    padding-top: 80px;
+    padding-bottom: 100px;
+}
+
+.settings-container h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.setting-list {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 32px var(--shadow);
+    margin-bottom: var(--spacing-xl);
+    overflow: hidden;
+}
+
+.setting-section h3 {
+    font-size: 1.2rem;
+    padding: var(--spacing-lg);
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    color: var(--primary);
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item h4 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.setting-item p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    transition: 0.4s;
+    border-radius: var(--radius-full);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: var(--radius-full);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+/* Select */
+.setting-select {
+    padding: var(--spacing-sm);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   Media Queries (Tablet & Desktop)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .onboarding-container,
+    .form-container,
+    .permission-container,
+    .profile-container {
+        max-width: 480px;
+        margin: 0 auto;
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .screen {
+        width: 480px;
+        left: 50%;
+        transform: translateX(100%) translateX(-50%);
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+    }
+
+    .screen.active {
+        transform: translateX(-50%) translateX(0);
+    }
+
+    .screen.slide-left {
+        transform: translateX(-50%) translateX(-100%);
+    }
+
+    /* Home screen full width for two-pane layout */
+    #screen-home,
+    #screen-profile,
+    #screen-settings {
+        width: 100%;
+        left: 0;
+        transform: translateX(100%);
+        max-width: none;
+    }
+    
+    #screen-home.active,
+    #screen-profile.active,
+    #screen-settings.active {
+        transform: translateX(0);
+    }
+
+    .dark-mode-toggle {
+        right: 50%;
+        transform: translateX(260px);
+    }
+
+    .app-bar,
+    .tabs-container {
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    
+    /* App Detail Screen (Two-pane) */
+    .app-detail-container {
+        display: grid;
+        grid-template-columns: 480px 1fr;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .detail-screen-main {
+        position: relative;
+        transform: none;
+        opacity: 1;
+        visibility: visible;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    .detail-header {
+        position: relative;
+        box-shadow: none;
+        padding: var(--spacing-xl) var(--spacing-lg);
+        background: none;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .detail-header h2 {
+        text-align: left;
+        margin-left: 0;
+    }
+
+    .detail-header .icon-btn {
+        display: none;
+    }
+
+    .detail-content {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+
+    .detail-card {
+        padding: var(--spacing-xl);
+    }
+
+    .app-bar {
+        border-radius: 0;
+    }
+
+    .tablet-detail-pane {
+        grid-column: 2;
+        padding: var(--spacing-2xl);
+        overflow-y: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-tertiary);
+    }
+
+    .dark-mode-toggle {
+        top: 80px;
+    }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-lg {
+    margin-top: var(--spacing-lg);
+}
+
+.mb-lg {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+    </style>
+</head>
+<body>
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <span class="material-symbols-rounded">dark_mode</span>
+    </div>
+
+    <div class="screen active" id="screen-onboarding">
+        <div class="onboarding-container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <span class="material-symbols-rounded">verified_user</span>
+                </div>
+                <h1 class="logo-title">RAuth OneID</h1>
+            </div>
+
+            <div class="carousel-container">
+                <div class="carousel-wrapper" id="carouselWrapper">
+                    <div class="carousel-slide active">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">fingerprint</span>
+                        </div>
+                        <h2>Welcome to OneID</h2>
+                        <p>Your universal identity for all apps. Login once, access everywhere.</p>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">shield_locked</span>
+                        </div>
+                        <h2>Ultra-secure. Zero passwords.</h2>
+                        <p>One tap verification. Biometric authentication. Military-grade encryption.</p>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">hub</span>
+                        </div>
+                        <h2>1-time KYC. Login anywhere instantly.</h2>
+                        <p>Complete KYC once, use it across all partner apps seamlessly.</p>
+                    </div>
+                </div>
+                <div class="carousel-indicators" id="carouselIndicators">
+                    <span class="indicator active" data-slide="0"></span>
+                    <span class="indicator" data-slide="1"></span>
+                    <span class="indicator" data-slide="2"></span>
+                </div>
+            </div>
+
+            <div class="login-section">
+                <h3>Get Started</h3>
+                <div class="input-group">
+                    <div class="country-code">
+                        <span class="material-symbols-rounded">flag</span>
+                        <span>+91</span>
+                    </div>
+                    <input type="tel" placeholder="Enter your mobile number" id="phoneInput" maxlength="10">
+                </div>
+                <button class="btn-primary" id="btnNext">
+                    Next
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="verificationModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h3>Verify your mobile number</h3>
+            <p class="modal-subtitle">Choose your preferred verification method</p>
+            <div class="verification-options">
+                <button class="verification-btn" id="btnWhatsApp">
+                    <span class="material-symbols-rounded">chat</span>
+                    <div>
+                        <strong>Reverse WhatsApp</strong>
+                        <small>Open WhatsApp with verification token</small>
+                    </div>
+                </button>
+                <button class="verification-btn" id="btnSMS">
+                    <span class="material-symbols-rounded">sms</span>
+                    <div>
+                        <strong>Reverse SMS</strong>
+                        <small>Send SMS with verification token</small>
+                    </div>
+                </button>
+            </div>
+            <p class="modal-info">Verification handled automatically once message is sent.</p>
+        </div>
+    </div>
+    
+    <div class="modal" id="approvalModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content approval-modal">
+            <div class="modal-app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <span class="material-symbols-rounded">receipt_long</span>
+            </div>
+            <h3>Login Request from TrueExpense</h3>
+            <p class="modal-description">The TrueExpense application is requesting your permission.</p>
+            
+            <div class="modal-details">
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">app_registration</span>
+                    <strong>App:</strong> <span id="approvalDetailAppName">TrueExpense</span>
+                </div>
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">list_alt</span>
+                    <strong>Type:</strong> <span id="approvalDetailType">Login Request</span>
+                </div>
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">location_on</span>
+                    <strong>Location:</strong> <span id="approvalDetailLocation">Mumbai, India</span>
+                </div>
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">devices</span>
+                    <strong>Device:</strong> <span id="approvalDetailDevice">Chrome on Windows</span>
+                </div>
+            </div>
+
+            <p class="modal-question">Do you approve this request?</p>
+
+            <div class="modal-actions">
+                <button class="btn-deny-modal" id="btnDeny">
+                    <span class="material-symbols-rounded">close</span>
+                    Deny
+                </button>
+                <button class="btn-approve-modal" id="btnApprove">
+                    <span class="material-symbols-rounded">check</span>
+                    Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="screen" id="screen-basic-info">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Complete your OneID Profile</h2>
+                <p>Just once — used across all apps securely.</p>
+            </div>
+            <div class="form-content">
+                <div class="input-group">
+                    <label>First Name</label>
+                    <input type="text" placeholder="Enter first name" id="firstName">
+                </div>
+                <div class="input-group">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Enter last name" id="lastName">
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <div class="gender-selector">
+                        <button class="gender-btn" data-value="male">
+                            <span class="material-symbols-rounded">male</span>
+                            Male
+                        </button>
+                        <button class="gender-btn" data-value="female">
+                            <span class="material-symbols-rounded">female</span>
+                            Female
+                        </button>
+                        <button class="gender-btn" data-value="other">
+                            <span class="material-symbols-rounded">transgender</span>
+                            Other
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob">
+                </div>
+                <button class="btn-primary" id="btnBasicInfoNext">
+                    Next
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-location">
+        <div class="permission-container">
+            <div class="permission-icon">
+                <span class="material-symbols-rounded">location_on</span>
+            </div>
+            <h2>Allow location access</h2>
+            <p>We use your city for login history and security tracking. Your privacy matters to us.</p>
+            <div class="permission-illustration">
+                <span class="material-symbols-rounded">map</span>
+            </div>
+            <div class="permission-actions">
+                <button class="btn-primary" id="btnAllowLocation">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    Allow Location
+                </button>
+                <button class="btn-secondary" id="btnSkipLocation">
+                    Not Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-home">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnMenu">
+                <span class="material-symbols-rounded">menu</span>
+            </button>
+            <h1>RAuth OneID</h1>
+            <button class="icon-btn" id="btnProfile">
+                <span class="material-symbols-rounded">account_circle</span>
+            </button>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="approvals">
+                    <span class="material-symbols-rounded">task_alt</span>
+                    Approvals
+                </button>
+                <button class="tab-btn" data-tab="my-apps">
+                    <span class="material-symbols-rounded">apps</span>
+                    My Apps
+                </button>
+            </div>
+
+            <div class="tab-content active" id="tab-approvals">
+                <div class="approval-list" id="approvalList">
+                    <div class="approval-card" data-app="trueexpense">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <span class="material-symbols-rounded">receipt_long</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>TrueExpense</h4>
+                            <p class="approval-type">Login Request</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Mumbai, India • 5s ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Chrome on Windows</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="approval-card" data-app="shopfast">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="material-symbols-rounded">shopping_cart</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>ShopFast</h4>
+                            <p class="approval-type">KYC Access Request</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Bangalore, India • 2m ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Safari on iPhone 14</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="approval-card" data-app="paywise">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <span class="material-symbols-rounded">payment</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>PayWise</h4>
+                            <p class="approval-type">Transaction Approval</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Delhi, India • 10m ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Android App on Pixel 7</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-my-apps">
+                <div class="apps-list" id="appsList">
+                    <div class="app-item" data-app="trueexpense">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <span class="material-symbols-rounded">receipt_long</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>TrueExpense</h4>
+                            <p class="app-domain">trueexpense.in</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 10 mins ago
+                                </span>
+                                <span class="meta-item kyc-verified">
+                                    <span class="material-symbols-rounded">verified</span>
+                                    KYC Verified
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    3 active sessions
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <div class="app-item" data-app="shopfast">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="material-symbols-rounded">shopping_cart</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>ShopFast</h4>
+                            <p class="app-domain">shopfast.com</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 2 hours ago
+                                </span>
+                                <span class="meta-item kyc-verified">
+                                    <span class="material-symbols-rounded">verified</span>
+                                    KYC Verified
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    1 active session
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <div class="app-item" data-app="paywise">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <span class="material-symbols-rounded">payment</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>PayWise</h4>
+                            <p class="app-domain">paywise.app</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 1 day ago
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">gpp_maybe</span>
+                                    KYC Not Linked
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    0 active sessions
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen detail-screen" id="screen-app-detail">
+        <div class="app-detail-container">
+            <div class="detail-screen-main">
+                <div class="detail-header">
+                    <button class="icon-btn" id="btnDetailBack">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                    </button>
+                    <h2>TrueExpense</h2>
+                </div>
+                
+                <div class="detail-content">
+                    <div class="detail-app-info">
+                        <div class="app-icon detail-app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <span class="material-symbols-rounded">receipt_long</span>
+                        </div>
+                        <div class="detail-app-text">
+                            <h3>TrueExpense</h3>
+                            <p>trueexpense.in</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>Data & Usage</h4>
+                        <div class="detail-item-group">
+                            <div class="detail-data-item">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">cloud_upload</span>
+                                    Data Usage This Month
+                                </span>
+                                <span class="detail-value" id="dataUsageValue">2.5 GB</span>
+                            </div>
+                            <div class="detail-data-item">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">verified</span>
+                                    KYC Status
+                                </span>
+                                <span class="detail-value" id="kycStatusValue">Full KYC (v2.1)</span>
+                            </div>
+                            <div class="detail-data-item sensitive">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">cake</span>
+                                    Date of Birth Access
+                                </span>
+                                <span class="detail-value" id="dobAccessValue">Allowed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h4>Active Sessions (3)</h4>
+                        <div class="detail-item-group">
+                            <div class="detail-data-item">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">laptop_windows</span>
+                                    Chrome on Windows
+                                </span>
+                                <span class="detail-value">
+                                    <span class="material-symbols-rounded" style="color: var(--accent); font-size: 20px;">check_circle</span>
+                                </span>
+                            </div>
+                            <div class="detail-data-item">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">smartphone</span>
+                                    Android App on Pixel 7
+                                </span>
+                                <span class="detail-value">2 days ago</span>
+                            </div>
+                            <div class="detail-data-item">
+                                <span class="detail-label">
+                                    <span class="material-symbols-rounded">tablet_mac</span>
+                                    Safari on iPad Mini
+                                </span>
+                                <span class="detail-value">1 week ago</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-danger" id="btnRevokeAccess">
+                        <span class="material-symbols-rounded">delete</span>
+                        Revoke All Access
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tablet-detail-pane">
+                Select an app to view details.
+            </div>
+        </div>
+    </div>
+    
+    <div class="screen" id="screen-profile">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnProfileBack">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1>My Profile</h1>
+            <button class="icon-btn" id="btnMenuFromProfile">
+                <span class="material-symbols-rounded">settings</span>
+            </button>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-avatar">
+                <span class="material-symbols-rounded">person</span>
+            </div>
+            <h2 id="profileName">John Doe</h2>
+            <p id="profilePhone">+91 XXXXXXXXXX</p>
+
+            <div class="profile-info">
+                <h4>Basic Information</h4>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">badge</span>
+                        Legal Name
+                    </span>
+                    <span class="info-value" id="profileFullName">John Doe</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">cake</span>
+                        Date of Birth
+                    </span>
+                    <span class="info-value" id="profileDOB">1990-01-01</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">male</span>
+                        Gender
+                    </span>
+                    <span class="info-value" id="profileGender">Male</span>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h4>Security & KYC</h4>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">lock</span>
+                        Biometrics
+                    </span>
+                    <span class="info-value" style="color: var(--accent);">Enabled</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">verified_user</span>
+                        KYC Status
+                    </span>
+                    <span class="info-value" style="color: var(--accent);">Verified</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <span class="material-symbols-rounded">location_on</span>
+                        Default Location
+                    </span>
+                    <span class="info-value" id="profileLocation">Mumbai, India</span>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-logout" id="btnLogout">
+                <span class="material-symbols-rounded">logout</span>
+                Logout from OneID
+            </button>
+        </div>
+    </div>
+    
+    <div class="screen" id="screen-settings">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnSettingsBack">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1>Settings</h1>
+            <button class="icon-btn hidden"></button>
+        </div>
+        <div class="settings-container">
+            <div class="setting-list">
+                <div class="setting-section">
+                    <h3>General</h3>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <h4>Biometric Login</h4>
+                        <p>Use face or fingerprint to approve requests</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <h4>Push Notifications</h4>
+                        <p>Receive instant alerts for approval requests</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <h4>Dark Mode</h4>
+                        <p>Use dark theme</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingsDarkMode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-list">
+                <div class="setting-section">
+                    <h3>Security</h3>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <h4>Auto-deny Suspicious Requests</h4>
+                        <p>Block requests from unknown locations</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <h4>Session Timeout</h4>
+                        <p>Auto-logout after inactivity</p>
+                    </div>
+                    <select class="setting-select">
+                        <option>15 minutes</option>
+                        <option selected>30 minutes</option>
+                        <option>1 hour</option>
+                        <option>Never</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// ============================================
+// RAuth OneID - Main JavaScript
+// ============================================
+
+// Application State
+const appState = {
+    currentScreen: 'screen-onboarding',
+    currentCarouselSlide: 0,
+    currentTab: 'approvals',
+    userData: {
+        firstName: '',
+        lastName: '',
+        gender: '',
+        dob: '',
+        phone: '',
+        location: ''
+    },
+    darkMode: false
+};
+
+// ============================================
+// Utility Functions
+// ============================================
+
+function showScreen(screenId) {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.classList.remove('active', 'slide-left');
+    });
+    
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        setTimeout(() => {
+            targetScreen.classList.add('active');
+        }, 50);
+        appState.currentScreen = screenId;
+    }
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function showToast(message, type = 'success') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 16px 24px;
+        background: ${type === 'success' ? '#00B894' : '#E74C3C'};
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideUp 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideDown 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ============================================
+// Onboarding & Carousel
+// ============================================
+
+function initCarousel() {
+    const indicators = document.querySelectorAll('.indicator');
+    const slides = document.querySelectorAll('.carousel-slide');
+
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            setCarouselSlide(index);
+        });
+    });
+
+    // Auto-advance carousel
+    setInterval(() => {
+        appState.currentCarouselSlide = (appState.currentCarouselSlide + 1) % slides.length;
+        setCarouselSlide(appState.currentCarouselSlide);
+    }, 4000);
+}
+
+function setCarouselSlide(index) {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.indicator');
+
+    slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+    });
+
+    indicators.forEach((indicator, i) => {
+        indicator.classList.toggle('active', i === index);
+    });
+
+    appState.currentCarouselSlide = index;
+}
+
+// ============================================
+// Phone Input & Verification
+// ============================================
+
+document.getElementById('btnNext')?.addEventListener('click', () => {
+    const phoneInput = document.getElementById('phoneInput');
+    const phone = phoneInput.value.trim();
+
+    if (phone.length !== 10) {
+        showToast('Please enter a valid 10-digit mobile number', 'error');
+        return;
+    }
+
+    appState.userData.phone = phone;
+    showModal('verificationModal');
+});
+
+document.getElementById('btnWhatsApp')?.addEventListener('click', () => {
+    const phone = appState.userData.phone;
+    const message = `RAuth OneID Verification Token: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const whatsappUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+    
+    showToast('Opening WhatsApp...', 'success');
+    setTimeout(() => {
+        // Simulate verification success
+        hideModal('verificationModal');
+        showToast('Verification successful!', 'success');
+        setTimeout(() => showScreen('screen-basic-info'), 1000);
+    }, 2000);
+});
+
+document.getElementById('btnSMS')?.addEventListener('click', () => {
+    const phone = appState.userData.phone;
+    const message = `RAuth OneID Verification Token: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const smsUrl = `sms:${phone}?body=${encodeURIComponent(message)}`;
+    
+    showToast('Opening SMS...', 'success');
+    setTimeout(() => {
+        // Simulate verification success
+        hideModal('verificationModal');
+        showToast('Verification successful!', 'success');
+        setTimeout(() => showScreen('screen-basic-info'), 1000);
+    }, 2000);
+});
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
+            backdrop.parentElement.classList.remove('active');
+        }
+    });
+});
+
+// ============================================
+// Basic Info Form
+// ============================================
+
+// Gender selector
+document.querySelectorAll('.gender-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        appState.userData.gender = btn.dataset.value;
+    });
+});
+
+document.getElementById('btnBasicInfoNext')?.addEventListener('click', () => {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const gender = appState.userData.gender;
+    const dob = document.getElementById('dob').value;
+
+    if (!firstName || !lastName || !gender || !dob) {
+        showToast('Please fill in all fields', 'error');
+        return;
+    }
+
+    appState.userData.firstName = firstName;
+    appState.userData.lastName = lastName;
+    appState.userData.dob = dob;
+
+    // Update profile with user data
+    document.getElementById('profileName').textContent = `${firstName} ${lastName}`;
+    document.getElementById('profilePhone').textContent = `+91 ${appState.userData.phone}`;
+    document.getElementById('profileFullName').textContent = `${firstName} ${lastName}`;
+    document.getElementById('profileDOB').textContent = dob;
+    document.getElementById('profileGender').textContent = gender.charAt(0).toUpperCase() + gender.slice(1);
+
+    showScreen('screen-location');
+});
+
+// ============================================
+// Location Permission
+// ============================================
+
+document.getElementById('btnAllowLocation')?.addEventListener('click', () => {
+    showToast('Location access granted', 'success');
+    appState.userData.location = 'Mumbai, India'; // Simulated
+    document.getElementById('profileLocation').textContent = appState.userData.location;
+    setTimeout(() => showScreen('screen-home'), 500);
+});
+
+document.getElementById('btnSkipLocation')?.addEventListener('click', () => {
+    showToast('You can enable location later in settings', 'success');
+    appState.userData.location = 'Unknown';
+    document.getElementById('profileLocation').textContent = appState.userData.location;
+    setTimeout(() => showScreen('screen-home'), 500);
+});
+
+// ============================================
+// Home Dashboard - Tabs
+// ============================================
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        appState.currentTab = tabName;
+    });
+});
+
+// ============================================
+// Approval Cards
+// ============================================
+
+// Handle approval card clicks to show modal
+document.querySelectorAll('.approval-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        // Don't trigger if clicking action buttons
+        if (e.target.closest('.approval-actions')) return;
+
+        const appName = card.querySelector('h4').textContent;
+        const appType = card.querySelector('.approval-type').textContent;
+        const location = card.querySelector('.approval-meta span:last-child').textContent.split(' • ')[0];
+        const device = card.querySelector('.approval-device span:last-child').textContent;
+        const appStyle = card.querySelector('.app-icon').getAttribute('style');
+        const cardDataApp = card.dataset.app;
+
+        // Populate modal
+        const approvalModal = document.getElementById('approvalModal');
+        approvalModal.querySelector('.modal-app-icon').setAttribute('style', appStyle);
+        approvalModal.querySelector('h3').textContent = `${appType} from ${appName}`;
+        approvalModal.querySelector('.modal-description').textContent = `The ${appName} application is requesting your permission.`;
+        approvalModal.querySelector('.modal-question').textContent = `Do you approve this request?`;
+
+        // Update details
+        approvalModal.querySelector('#approvalDetailAppName').textContent = appName;
+        approvalModal.querySelector('#approvalDetailType').textContent = appType;
+        approvalModal.querySelector('#approvalDetailLocation').textContent = location;
+        approvalModal.querySelector('#approvalDetailDevice').textContent = device;
+        
+        // Store the card to remove later
+        approvalModal.dataset.targetCard = cardDataApp;
+
+        // Show modal
+        showModal('approvalModal');
+    });
+});
+
+// Handle Approve/Deny
+document.getElementById('btnApprove')?.addEventListener('click', () => {
+    const targetCardId = document.getElementById('approvalModal').dataset.targetCard;
+    const cardToRemove = document.querySelector(`.approval-card[data-app="${targetCardId}"]`);
+    
+    hideModal('approvalModal');
+    showToast('Request Approved!', 'success');
+    
+    // Remove the card
+    if (cardToRemove) {
+        cardToRemove.classList.add('hidden'); // Hide it visually
+        setTimeout(() => cardToRemove.remove(), 300); // Remove after animation
+    }
+});
+
+document.getElementById('btnDeny')?.addEventListener('click', () => {
+    hideModal('approvalModal');
+    showToast('Request Denied!', 'error');
+});
+
+// ============================================
+// App Detail Screen
+// ============================================
+
+document.querySelectorAll('.app-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const appName = item.querySelector('h4').textContent;
+        const appDomain = item.querySelector('.app-domain').textContent;
+        const appStyle = item.querySelector('.app-icon').getAttribute('style');
+
+        // Populate detail screen
+        const detailScreen = document.getElementById('screen-app-detail');
+        detailScreen.querySelector('.detail-header h2').textContent = appName;
+        detailScreen.querySelector('.detail-app-icon').setAttribute('style', appStyle);
+        detailScreen.querySelector('.detail-app-text h3').textContent = appName;
+        detailScreen.querySelector('.detail-app-text p').textContent = appDomain;
+        
+        // Simulate data points
+        detailScreen.querySelector('#dataUsageValue').textContent = '2.5 GB';
+        detailScreen.querySelector('#kycStatusValue').textContent = 'Full KYC (v2.1)';
+        detailScreen.querySelector('#dobAccessValue').textContent = 'Allowed';
+
+        showScreen('screen-app-detail');
+    });
+});
+
+document.getElementById('btnDetailBack')?.addEventListener('click', () => {
+    showScreen('screen-home');
+});
+
+document.getElementById('btnRevokeAccess')?.addEventListener('click', () => {
+    showToast(`Access for ${document.getElementById('screen-app-detail').querySelector('.detail-app-text h3').textContent} revoked!`, 'error');
+    // Simulate navigation back
+    setTimeout(() => showScreen('screen-home'), 500);
+});
+
+// ============================================
+// Profile Screen
+// ============================================
+
+document.getElementById('btnProfile')?.addEventListener('click', () => {
+    showScreen('screen-profile');
+});
+
+document.getElementById('btnProfileBack')?.addEventListener('click', () => {
+    showScreen('screen-home');
+});
+
+document.getElementById('btnSettings')?.addEventListener('click', () => {
+    showScreen('screen-settings');
+});
+
+document.getElementById('btnMenu')?.addEventListener('click', () => {
+    showScreen('screen-settings'); // Using settings as a proxy for a side-menu or settings page
+});
+
+document.getElementById('btnSettingsBack')?.addEventListener('click', () => {
+    // Determine where to go back to (e.g., home or profile)
+    if (appState.currentScreen === 'screen-settings' && appState.previousScreen === 'screen-profile') {
+        showScreen('screen-profile');
+    } else {
+        showScreen('screen-home');
+    }
+});
+
+document.getElementById('btnMenuFromProfile')?.addEventListener('click', () => {
+    appState.previousScreen = 'screen-profile';
+    showScreen('screen-settings'); 
+});
+
+document.getElementById('btnLogout')?.addEventListener('click', () => {
+    showToast('Logged out successfully', 'success');
+    // Clear data and return to onboarding
+    appState.userData = {};
+    setTimeout(() => {
+        // Reset phone input field (if needed, simulating a real logout)
+        const phoneInput = document.getElementById('phoneInput');
+        if (phoneInput) phoneInput.value = '';
+
+        // Reset profile defaults
+        document.getElementById('profileName').textContent = 'User Name';
+        document.getElementById('profilePhone').textContent = '+91 XXXXXXXXXX';
+        document.getElementById('profileFullName').textContent = 'User Name';
+        document.getElementById('profileDOB').textContent = '1990-01-01';
+        document.getElementById('profileGender').textContent = 'Male';
+        document.getElementById('profileLocation').textContent = 'Unknown';
+
+        // Clear gender selection
+        document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+
+
+        showScreen('screen-onboarding');
+    }, 1000);
+});
+
+
+// ============================================
+// Dark Mode Toggle
+// ============================================
+
+function toggleDarkMode(isInit = false) {
+    const body = document.body;
+    const settingsToggle = document.getElementById('settingsDarkMode');
+    
+    if (appState.darkMode) {
+        body.classList.add('dark-mode');
+        if (settingsToggle) settingsToggle.checked = true;
+    } else {
+        body.classList.remove('dark-mode');
+        if (settingsToggle) settingsToggle.checked = false;
+    }
+    
+    if (!isInit) {
+        localStorage.setItem('darkMode', appState.darkMode);
+    }
+}
+
+document.getElementById('darkModeToggle')?.addEventListener('click', () => {
+    appState.darkMode = !appState.darkMode;
+    toggleDarkMode();
+});
+
+document.getElementById('settingsDarkMode')?.addEventListener('change', (e) => {
+    appState.darkMode = e.target.checked;
+    toggleDarkMode();
+});
+
+// Initialize dark mode from localStorage
+function initDarkMode() {
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode === 'true') {
+        appState.darkMode = true;
+    } else if (savedMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Default to system preference if no local storage setting
+        appState.darkMode = true;
+    } else {
+        appState.darkMode = false;
+    }
+    toggleDarkMode(true);
+}
+
+
+// ============================================
+// Animations for dynamic content
+// ============================================
+
+// Add CSS animations dynamically
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideUp {
+        from {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideDown {
+        from {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes slideOutLeft {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// ============================================
+// Initialize App
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    initDarkMode();
+    initCarousel();
+    console.log('RAuth OneID App Initialized');
+    console.log('Current Screen:', appState.currentScreen);
+});
+    </script>
+</body>
+</html>
