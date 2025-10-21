@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAuth OneID - Universal Authentication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Dark Mode Toggle (Hidden on some screens) -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <span class="material-symbols-rounded">dark_mode</span>
+    </div>
+
+    <!-- Screen 1: Onboarding -->
+    <div class="screen active" id="screen-onboarding">
+        <div class="onboarding-container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <span class="material-symbols-rounded">verified_user</span>
+                </div>
+                <h1 class="logo-title">RAuth OneID</h1>
+            </div>
+
+            <div class="carousel-container">
+                <div class="carousel-wrapper" id="carouselWrapper">
+                    <div class="carousel-slide active">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">fingerprint</span>
+                        </div>
+                        <h2>Welcome to OneID</h2>
+                        <p>Your universal identity for all apps. Login once, access everywhere.</p>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">shield_locked</span>
+                        </div>
+                        <h2>Ultra-secure. Zero passwords.</h2>
+                        <p>One tap verification. Biometric authentication. Military-grade encryption.</p>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-icon">
+                            <span class="material-symbols-rounded">hub</span>
+                        </div>
+                        <h2>1-time KYC. Login anywhere instantly.</h2>
+                        <p>Complete KYC once, use it across all partner apps seamlessly.</p>
+                    </div>
+                </div>
+                <div class="carousel-indicators" id="carouselIndicators">
+                    <span class="indicator active" data-slide="0"></span>
+                    <span class="indicator" data-slide="1"></span>
+                    <span class="indicator" data-slide="2"></span>
+                </div>
+            </div>
+
+            <div class="login-section">
+                <h3>Get Started</h3>
+                <div class="input-group">
+                    <div class="country-code">
+                        <span class="material-symbols-rounded">flag</span>
+                        <span>+91</span>
+                    </div>
+                    <input type="tel" placeholder="Enter your mobile number" id="phoneInput" maxlength="10">
+                </div>
+                <button class="btn-primary" id="btnNext">
+                    Next
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal" id="verificationModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h3>Verify your mobile number</h3>
+            <p class="modal-subtitle">Choose your preferred verification method</p>
+            <div class="verification-options">
+                <button class="verification-btn" id="btnWhatsApp">
+                    <span class="material-symbols-rounded">chat</span>
+                    <div>
+                        <strong>Reverse WhatsApp</strong>
+                        <small>Open WhatsApp with verification token</small>
+                    </div>
+                </button>
+                <button class="verification-btn" id="btnSMS">
+                    <span class="material-symbols-rounded">sms</span>
+                    <div>
+                        <strong>Reverse SMS</strong>
+                        <small>Send SMS with verification token</small>
+                    </div>
+                </button>
+            </div>
+            <p class="modal-info">Verification handled automatically once message is sent.</p>
+        </div>
+    </div>
+
+    <!-- Screen 2: Basic Info -->
+    <div class="screen" id="screen-basic-info">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Complete your OneID Profile</h2>
+                <p>Just once — used across all apps securely.</p>
+            </div>
+            <div class="form-content">
+                <div class="input-group">
+                    <label>First Name</label>
+                    <input type="text" placeholder="Enter first name" id="firstName">
+                </div>
+                <div class="input-group">
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Enter last name" id="lastName">
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <div class="gender-selector">
+                        <button class="gender-btn" data-value="male">
+                            <span class="material-symbols-rounded">male</span>
+                            Male
+                        </button>
+                        <button class="gender-btn" data-value="female">
+                            <span class="material-symbols-rounded">female</span>
+                            Female
+                        </button>
+                        <button class="gender-btn" data-value="other">
+                            <span class="material-symbols-rounded">transgender</span>
+                            Other
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob">
+                </div>
+                <button class="btn-primary" id="btnBasicInfoNext">
+                    Next
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 3: Location Permission -->
+    <div class="screen" id="screen-location">
+        <div class="permission-container">
+            <div class="permission-icon">
+                <span class="material-symbols-rounded">location_on</span>
+            </div>
+            <h2>Allow location access</h2>
+            <p>We use your city for login history and security tracking. Your privacy matters to us.</p>
+            <div class="permission-illustration">
+                <span class="material-symbols-rounded">map</span>
+            </div>
+            <div class="permission-actions">
+                <button class="btn-primary" id="btnAllowLocation">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    Allow Location
+                </button>
+                <button class="btn-secondary" id="btnSkipLocation">
+                    Not Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 4: Home Dashboard -->
+    <div class="screen" id="screen-home">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnMenu">
+                <span class="material-symbols-rounded">menu</span>
+            </button>
+            <h1>RAuth OneID</h1>
+            <button class="icon-btn" id="btnProfile">
+                <span class="material-symbols-rounded">account_circle</span>
+            </button>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="approvals">
+                    <span class="material-symbols-rounded">task_alt</span>
+                    Approvals
+                </button>
+                <button class="tab-btn" data-tab="my-apps">
+                    <span class="material-symbols-rounded">apps</span>
+                    My Apps
+                </button>
+            </div>
+
+            <!-- Tab 1: Approvals -->
+            <div class="tab-content active" id="tab-approvals">
+                <div class="approval-list" id="approvalList">
+                    <!-- Approval items will be dynamically generated -->
+                    <div class="approval-card" data-app="trueexpense">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <span class="material-symbols-rounded">receipt_long</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>TrueExpense</h4>
+                            <p class="approval-type">Login Request</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Mumbai, India • 5s ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Chrome on Windows</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="approval-card" data-app="shopfast">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="material-symbols-rounded">shopping_cart</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>ShopFast</h4>
+                            <p class="approval-type">KYC Access Request</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Bangalore, India • 2m ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Safari on iPhone 14</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="approval-card" data-app="paywise">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <span class="material-symbols-rounded">payment</span>
+                        </div>
+                        <div class="approval-content">
+                            <h4>PayWise</h4>
+                            <p class="approval-type">Transaction Approval</p>
+                            <div class="approval-meta">
+                                <span class="material-symbols-rounded">location_on</span>
+                                <span>Delhi, India • 10m ago</span>
+                            </div>
+                            <div class="approval-device">
+                                <span class="material-symbols-rounded">devices</span>
+                                <span>Android App on Pixel 7</span>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn-approve">
+                                <span class="material-symbols-rounded">check</span>
+                            </button>
+                            <button class="btn-deny">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: My Apps -->
+            <div class="tab-content" id="tab-my-apps">
+                <div class="apps-list" id="appsList">
+                    <div class="app-item" data-app="trueexpense">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <span class="material-symbols-rounded">receipt_long</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>TrueExpense</h4>
+                            <p class="app-domain">trueexpense.in</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 10 mins ago
+                                </span>
+                                <span class="meta-item kyc-verified">
+                                    <span class="material-symbols-rounded">verified</span>
+                                    KYC Verified
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    3 active sessions
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <div class="app-item" data-app="shopfast">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="material-symbols-rounded">shopping_cart</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>ShopFast</h4>
+                            <p class="app-domain">shopfast.com</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 2 hours ago
+                                </span>
+                                <span class="meta-item kyc-verified">
+                                    <span class="material-symbols-rounded">verified</span>
+                                    KYC Verified
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    1 active session
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+
+                    <div class="app-item" data-app="paywise">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <span class="material-symbols-rounded">payment</span>
+                        </div>
+                        <div class="app-item-content">
+                            <h4>PayWise</h4>
+                            <p class="app-domain">paywise.app</p>
+                            <div class="app-meta">
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">schedule</span>
+                                    Last access: 1 day ago
+                                </span>
+                                <span class="meta-item kyc-pending">
+                                    <span class="material-symbols-rounded">pending</span>
+                                    KYC Pending
+                                </span>
+                                <span class="meta-item">
+                                    <span class="material-symbols-rounded">devices</span>
+                                    2 active sessions
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-arrow">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Detail Modal -->
+    <div class="modal" id="approvalModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content approval-modal">
+            <div class="modal-app-icon" id="modalAppIcon">
+                <span class="material-symbols-rounded">receipt_long</span>
+            </div>
+            <h3 id="modalAppName">TrueExpense</h3>
+            <p class="modal-description" id="modalDescription">
+                TrueExpense is requesting access to verify your KYC and confirm your login.
+            </p>
+            <div class="modal-details">
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">location_on</span>
+                    <span id="modalLocation">Mumbai, India</span>
+                </div>
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">devices</span>
+                    <span id="modalDevice">Chrome on Windows</span>
+                </div>
+                <div class="detail-item">
+                    <span class="material-symbols-rounded">schedule</span>
+                    <span id="modalTime">5 seconds ago</span>
+                </div>
+            </div>
+            <p class="modal-question">Do you approve this request?</p>
+            <div class="modal-actions">
+                <button class="btn-approve-modal" id="btnApproveModal">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    Approve
+                </button>
+                <button class="btn-deny-modal" id="btnDenyModal">
+                    <span class="material-symbols-rounded">cancel</span>
+                    Deny
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 5: App Details -->
+    <div class="screen" id="screen-app-details">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnBackFromAppDetails">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1 id="appDetailsTitle">App Details</h1>
+            <div></div>
+        </div>
+
+        <div class="app-details-container">
+            <div class="app-details-header">
+                <div class="app-icon large" id="appDetailsIcon">
+                    <span class="material-symbols-rounded">apps</span>
+                </div>
+                <h2 id="appDetailsName">TrueExpense</h2>
+                <p id="appDetailsConnected">Connected since March 2024</p>
+            </div>
+
+            <div class="section-title">Active Sessions</div>
+            <div class="sessions-list" id="sessionsList">
+                <div class="session-card">
+                    <div class="session-info">
+                        <span class="material-symbols-rounded">computer</span>
+                        <div>
+                            <h4>Chrome on Windows</h4>
+                            <p>Mumbai, India</p>
+                            <small>Last access: 10 mins ago • IP: 192.168.1.1</small>
+                        </div>
+                    </div>
+                    <button class="btn-revoke">Revoke</button>
+                </div>
+
+                <div class="session-card">
+                    <div class="session-info">
+                        <span class="material-symbols-rounded">smartphone</span>
+                        <div>
+                            <h4>Android App on Pixel 7</h4>
+                            <p>Mumbai, India</p>
+                            <small>Last access: 2 hours ago • IP: 192.168.1.5</small>
+                        </div>
+                    </div>
+                    <button class="btn-revoke">Revoke</button>
+                </div>
+
+                <div class="session-card">
+                    <div class="session-info">
+                        <span class="material-symbols-rounded">tablet_mac</span>
+                        <div>
+                            <h4>Safari on iPad</h4>
+                            <p>Delhi, India</p>
+                            <small>Last access: 1 day ago • IP: 203.45.67.89</small>
+                        </div>
+                    </div>
+                    <button class="btn-revoke">Revoke</button>
+                </div>
+            </div>
+
+            <button class="btn-danger" id="btnRevokeAll">
+                <span class="material-symbols-rounded">block</span>
+                Revoke All Sessions
+            </button>
+
+            <div class="app-footer-info">
+                <span class="material-symbols-rounded">info</span>
+                <p>This app requires KYC verification for full access</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 6: Profile -->
+    <div class="screen" id="screen-profile">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnBackFromProfile">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1>Profile</h1>
+            <div></div>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-avatar">
+                <div class="avatar-circle">
+                    <span class="material-symbols-rounded">person</span>
+                </div>
+                <button class="btn-edit-avatar">
+                    <span class="material-symbols-rounded">edit</span>
+                </button>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-item">
+                    <span class="material-symbols-rounded">person</span>
+                    <div>
+                        <label>Name</label>
+                        <p id="profileName">John Doe</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="material-symbols-rounded">phone</span>
+                    <div>
+                        <label>Phone</label>
+                        <p id="profilePhone">+91 98765 43210</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="material-symbols-rounded">email</span>
+                    <div>
+                        <label>Email</label>
+                        <p id="profileEmail">john.doe@example.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btnManageKYC">
+                <span class="material-symbols-rounded">badge</span>
+                Manage KYC
+            </button>
+
+            <button class="btn-secondary" id="btnLogout">
+                <span class="material-symbols-rounded">logout</span>
+                Logout of OneID
+            </button>
+
+            <div class="divider"></div>
+
+            <div class="security-info">
+                <h3>Security Information</h3>
+                <div class="security-item">
+                    <span class="material-symbols-rounded">passkey</span>
+                    <div>
+                        <strong>Passkey Devices</strong>
+                        <p>2 devices registered</p>
+                    </div>
+                </div>
+                <div class="security-item">
+                    <span class="material-symbols-rounded">schedule</span>
+                    <div>
+                        <strong>Last Login</strong>
+                        <p>Today, 4:12 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 7: KYC Management -->
+    <div class="screen" id="screen-kyc">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnBackFromKYC">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1>KYC Verification</h1>
+            <div></div>
+        </div>
+
+        <div class="kyc-container">
+            <div class="kyc-status">
+                <div class="status-badge approved">
+                    <span class="material-symbols-rounded">check_circle</span>
+                    <span>Approved</span>
+                </div>
+            </div>
+
+            <div class="kyc-documents">
+                <div class="document-card verified">
+                    <div class="document-icon">
+                        <span class="material-symbols-rounded">badge</span>
+                    </div>
+                    <div class="document-content">
+                        <h4>Aadhaar Card</h4>
+                        <p>Verified on March 15, 2024</p>
+                    </div>
+                    <span class="material-symbols-rounded status-icon">check_circle</span>
+                </div>
+
+                <div class="document-card pending">
+                    <div class="document-icon">
+                        <span class="material-symbols-rounded">credit_card</span>
+                    </div>
+                    <div class="document-content">
+                        <h4>PAN Card</h4>
+                        <p>Under review</p>
+                    </div>
+                    <span class="material-symbols-rounded status-icon">pending</span>
+                </div>
+
+                <div class="document-card upload">
+                    <div class="document-icon">
+                        <span class="material-symbols-rounded">flight</span>
+                    </div>
+                    <div class="document-content">
+                        <h4>Passport</h4>
+                        <p>Not uploaded</p>
+                    </div>
+                    <button class="btn-upload">
+                        <span class="material-symbols-rounded">upload</span>
+                        Upload
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="btnAddDocument">
+                <span class="material-symbols-rounded">add_circle</span>
+                Add Document
+            </button>
+
+            <button class="btn-secondary" id="btnSubmitVerification">
+                Submit for Verification
+            </button>
+
+            <div class="kyc-info">
+                <span class="material-symbols-rounded">info</span>
+                <p>Your documents are encrypted and stored securely. We never share your KYC data without your explicit approval.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">
+                <span class="material-symbols-rounded">verified_user</span>
+            </div>
+            <h2>RAuth OneID</h2>
+            <button class="icon-btn" id="btnCloseSidebar">
+                <span class="material-symbols-rounded">close</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="#" class="menu-item" data-info="how-it-works">
+                <span class="material-symbols-rounded">help</span>
+                <span>How OneID Works</span>
+            </a>
+            <a href="#" class="menu-item" data-info="privacy">
+                <span class="material-symbols-rounded">privacy_tip</span>
+                <span>Privacy & Data Policy</span>
+            </a>
+            <a href="#" class="menu-item" data-info="pre-kyc">
+                <span class="material-symbols-rounded">psychology</span>
+                <span>What is Pre-KYC?</span>
+            </a>
+            <a href="#" class="menu-item" data-info="contact">
+                <span class="material-symbols-rounded">contact_support</span>
+                <span>Contact Us</span>
+            </a>
+            <a href="#" class="menu-item" data-info="settings">
+                <span class="material-symbols-rounded">settings</span>
+                <span>App Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Info Screens Container -->
+    <div class="screen" id="screen-info">
+        <div class="app-bar">
+            <button class="icon-btn" id="btnBackFromInfo">
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <h1 id="infoTitle">Info</h1>
+            <div></div>
+        </div>
+
+        <div class="info-container" id="infoContainer">
+            <!-- Content dynamically loaded -->
+        </div>
+    </div>
+
+    <!-- How It Works Content -->
+    <div class="info-content-template" id="how-it-works-content" style="display: none;">
+        <div class="info-hero">
+            <span class="material-symbols-rounded">lightbulb</span>
+            <h2>How OneID Works</h2>
+        </div>
+        <div class="info-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <span class="material-symbols-rounded">verified_user</span>
+                <h3>Verify Once</h3>
+                <p>Sign up with your mobile number using WhatsApp or SMS verification. Complete your profile and KYC just once.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <span class="material-symbols-rounded">fingerprint</span>
+                <h3>Get Universal Identity</h3>
+                <p>Receive your secure OneID that works across all partner apps. No more multiple accounts or passwords.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <span class="material-symbols-rounded">hub</span>
+                <h3>Login Anywhere</h3>
+                <p>Use your OneID to login to any partner app instantly. Approve requests with a single tap on your phone.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Content -->
+    <div class="info-content-template" id="privacy-content" style="display: none;">
+        <div class="info-hero">
+            <span class="material-symbols-rounded">privacy_tip</span>
+            <h2>Privacy & Data Policy</h2>
+        </div>
+        <div class="info-text-content">
+            <h3>Your Privacy Matters</h3>
+            <p>At RAuth OneID, we take your privacy seriously. This policy explains how we collect, use, and protect your personal information.</p>
+            
+            <h3>Data Collection</h3>
+            <p>We collect only essential information needed to provide our services:</p>
+            <ul>
+                <li>Mobile number for authentication</li>
+                <li>Basic profile information (name, date of birth, gender)</li>
+                <li>KYC documents for identity verification</li>
+                <li>Location data for security monitoring</li>
+                <li>Device information for session management</li>
+            </ul>
+
+            <h3>Data Usage</h3>
+            <p>Your data is used exclusively for:</p>
+            <ul>
+                <li>Authenticating your identity across partner apps</li>
+                <li>Providing security alerts and monitoring</li>
+                <li>Complying with legal and regulatory requirements</li>
+                <li>Improving our services</li>
+            </ul>
+
+            <h3>Data Protection</h3>
+            <p>We employ industry-standard security measures:</p>
+            <ul>
+                <li>End-to-end encryption for all data transmission</li>
+                <li>Secure storage with military-grade encryption</li>
+                <li>Regular security audits and penetration testing</li>
+                <li>Zero-knowledge architecture where possible</li>
+            </ul>
+
+            <h3>Data Sharing</h3>
+            <p>We never share your personal data without your explicit consent. When you approve a login or KYC request, only the necessary information is shared with that specific app.</p>
+
+            <h3>Your Rights</h3>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access your personal data</li>
+                <li>Request data correction or deletion</li>
+                <li>Revoke app permissions at any time</li>
+                <li>Export your data</li>
+                <li>Close your account</li>
+            </ul>
+
+            <p class="info-footer">Last updated: March 2024</p>
+        </div>
+    </div>
+
+    <!-- Pre-KYC Content -->
+    <div class="info-content-template" id="pre-kyc-content" style="display: none;">
+        <div class="info-hero">
+            <span class="material-symbols-rounded">psychology</span>
+            <h2>What is Pre-KYC?</h2>
+        </div>
+        <div class="info-text-content">
+            <h3>One KYC, Infinite Possibilities</h3>
+            <p>Pre-KYC is a revolutionary approach to identity verification that saves you time and eliminates repetitive paperwork.</p>
+            
+            <h3>The Traditional Problem</h3>
+            <p>Typically, every app or service requires you to:</p>
+            <ul>
+                <li>Submit KYC documents separately</li>
+                <li>Wait for verification each time</li>
+                <li>Store sensitive documents on multiple platforms</li>
+                <li>Repeat the process for every new service</li>
+            </ul>
+
+            <h3>The OneID Solution</h3>
+            <p>With RAuth OneID's Pre-KYC:</p>
+            <ul>
+                <li><strong>Complete KYC once:</strong> Submit your documents to OneID only</li>
+                <li><strong>Instant verification:</strong> Partner apps access your verified status</li>
+                <li><strong>Controlled sharing:</strong> You approve what data each app sees</li>
+                <li><strong>Secure storage:</strong> Your documents stay encrypted in one place</li>
+            </ul>
+
+            <h3>How It Works</h3>
+            <div class="step-card">
+                <h4>Step 1: Upload Once</h4>
+                <p>Submit your KYC documents (Aadhaar, PAN, Passport) to OneID</p>
+            </div>
+            <div class="step-card">
+                <h4>Step 2: Get Verified</h4>
+                <p>Our team verifies your documents following regulatory standards</p>
+            </div>
+            <div class="step-card">
+                <h4>Step 3: Approve Requests</h4>
+                <p>When apps need KYC, approve their request with a single tap</p>
+            </div>
+            <div class="step-card">
+                <h4>Step 4: Instant Access</h4>
+                <p>Apps receive your verified status instantly - no waiting!</p>
+            </div>
+
+            <h3>Benefits</h3>
+            <ul>
+                <li>⏱️ Save hours of repetitive paperwork</li>
+                <li>🔒 Enhanced security with centralized storage</li>
+                <li>✅ Instant verification across all partner apps</li>
+                <li>🎯 Full control over data sharing</li>
+                <li>📱 Mobile-first, paperless experience</li>
+            </ul>
+
+            <h3>Security & Compliance</h3>
+            <p>OneID's Pre-KYC system is fully compliant with:</p>
+            <ul>
+                <li>Reserve Bank of India (RBI) guidelines</li>
+                <li>Know Your Customer (KYC) regulations</li>
+                <li>Digital Personal Data Protection Act</li>
+                <li>ISO 27001 security standards</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Contact Content -->
+    <div class="info-content-template" id="contact-content" style="display: none;">
+        <div class="info-hero">
+            <span class="material-symbols-rounded">contact_support</span>
+            <h2>Contact Us</h2>
+        </div>
+        <div class="contact-options">
+            <div class="contact-card">
+                <span class="material-symbols-rounded">email</span>
+                <h3>Email Support</h3>
+                <p>support@rauth.io</p>
+                <small>We typically respond within 24 hours</small>
+            </div>
+            <div class="contact-card">
+                <span class="material-symbols-rounded">chat</span>
+                <h3>Live Chat</h3>
+                <p>Available 24/7</p>
+                <button class="btn-primary">Start Chat</button>
+            </div>
+            <div class="contact-card">
+                <span class="material-symbols-rounded">help</span>
+                <h3>Help Center</h3>
+                <p>Browse FAQs and guides</p>
+                <small>help.rauth.io</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="info-content-template" id="settings-content" style="display: none;">
+        <div class="info-hero">
+            <span class="material-symbols-rounded">settings</span>
+            <h2>App Settings</h2>
+        </div>
+        <div class="settings-list">
+            <div class="setting-item">
+                <div>
+                    <h4>Notifications</h4>
+                    <p>Receive alerts for login requests</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <h4>Biometric Login</h4>
+                    <p>Use fingerprint or face ID</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <h4>Dark Mode</h4>
+                    <p>Use dark theme</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="settingsDarkMode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <h4>Auto-deny Suspicious Requests</h4>
+                    <p>Block requests from unknown locations</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div>
+                    <h4>Session Timeout</h4>
+                    <p>Auto-logout after inactivity</p>
+                </div>
+                <select class="setting-select">
+                    <option>15 minutes</option>
+                    <option selected>30 minutes</option>
+                    <option>1 hour</option>
+                    <option>Never</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
